@@ -1,0 +1,9 @@
+lib/
+node_modules/
+.DS_Store
+.bak
+.env
+.serverless
+.build
+coverage/
+lambda/

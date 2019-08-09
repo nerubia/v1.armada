@@ -1,0 +1,26 @@
+service: armada
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+
+  #  stage: dev
+  region: ap-southeast-1
+
+package:
+  exclude:
+    - node_modules/**/*
+  include:
+    - handler.ts
+
+functions:
+  health:
+    handler: handler.health
+    events:
+      - http:
+          path: health
+          method: get
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
