@@ -1,6 +1,6 @@
 # Armada
 
-Serverless API
+Serverless API based off serverless.com.
 
 ### Why Armada?
 
