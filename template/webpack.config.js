@@ -1,5 +1,5 @@
-const path = require('path');
-const slsw = require('serverless-webpack');
+const path = require('path')
+const slsw = require('serverless-webpack')
 
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
@@ -20,4 +20,4 @@ module.exports = {
       { test: /\.tsx?$/, loader: 'ts-loader' },
     ],
   },
-};
+}
