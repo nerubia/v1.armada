@@ -13,7 +13,7 @@ Serverless API based off serverless.com.
 > 1 : a fleet of warships
 > 2 : a large force or group usually of moving things
 
-### Setup
+## Setup
 
 Install node packages
 
@@ -40,7 +40,7 @@ cd services/general
 npm run deploy
 ```
 
-### Start hacking!
+## Start hacking!
 
 ```
 # Create (and name) your service
