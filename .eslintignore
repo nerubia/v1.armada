@@ -1,1 +1,2 @@
-/lambda/**
+*.test.ts
+*.config.js

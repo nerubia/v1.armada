@@ -1,0 +1,27 @@
+{
+  "name": "auth",
+  "version": "0.0.1",
+  "description": "Armory microservices",
+  "main": "handler.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "remove": "serverless remove",
+    "start": "serverless offline start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "source-map-support": "^0.5.10"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.17",
+    "@types/node": "^10.12.18",
+    "serverless": "^1.49.0",
+    "serverless-offline": "^5.10.1",
+    "serverless-webpack": "^5.2.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.4",
+    "webpack": "^4.29.0"
+  },
+  "author": "Modified by g-six based on (https://github.com/elastic-coders/serverless-webpack)",
+  "license": "MIT"
+}

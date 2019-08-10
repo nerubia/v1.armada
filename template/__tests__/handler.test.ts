@@ -1,4 +1,4 @@
-import { status } from './handler'
+import { status } from '../handler'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 
 const getBodyString = JSON.stringify
