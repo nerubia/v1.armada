@@ -6,13 +6,13 @@
   "scripts": {
     "c": "git-cz",
     "l": "pretty-quick && eslint '*/**/*.ts'",
-    "create": "serverless create",
+    "create": "serverless create --template aws-nodejs-typescript --path ./services/$NAME --name $NAME",
     "deploy": "serverless deploy",
     "invoke": "serverless invoke",
     "logs": "serverless logs",
     "remove": "serverless remove",
     "start": "serverless offline start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
