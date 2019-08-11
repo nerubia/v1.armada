@@ -3,7 +3,7 @@ service:
 
 plugins:
   - serverless-offline
-  - serverless-webpack
+  - serverless-plugin-typescript
 
 provider:
   name: aws
@@ -20,9 +20,15 @@ custom:
   stage: ${opt:stage, self:provider.stage}
 
 functions:
+  create:
+    handler: handler.create
+    events:
+      - http:
+          method: post
+          path: enter-post-path
   list:
     handler: handler.list
     events:
       - http:
           method: get
-          # path: add-your-path-here
+          path: enter-get-path

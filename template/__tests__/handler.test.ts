@@ -1,4 +1,4 @@
-import { status } from '../handler'
+import { list } from '../handler'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 
 const getBodyString = JSON.stringify
@@ -17,7 +17,7 @@ describe('Auth', () => {
   it('should return results', async () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
-    const actual = await status(
+    const actual = await list(
       mockEvent() as APIGatewayProxyEvent,
       context,
       spyCallback,
