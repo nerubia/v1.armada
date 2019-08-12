@@ -4,6 +4,7 @@ import { create as createRecord } from './model'
 
 const headers = {
   'Access-Control-Allow-Origin': '*', // Required for CORS support to work
+  'Access-Control-Expose-Headers': 'kasl-key',
   'Access-Control-Allow-Credentials': true, // Required for cookies, authorization headers with HTTPS
 }
 
