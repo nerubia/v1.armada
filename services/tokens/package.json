@@ -4,6 +4,7 @@
   "description": "Armory microservices",
   "main": "handler.js",
   "scripts": {
+    "config": "serverless config credentials --provider aws --key $AWS_KEY --secret $AWS_SECRET --profile armada --overwrite",
     "deploy": "serverless deploy",
     "remove": "serverless remove",
     "start": "serverless offline start",
@@ -11,6 +12,7 @@
   },
   "dependencies": {
     "@hapi/joi": "^15.1.0",
+    "aws-sdk": "^2.507.0",
     "loadash": "^1.0.0",
     "massive": "^5.11.2",
     "redis": "^2.8.0",
