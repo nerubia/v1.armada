@@ -1,32 +1,77 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 
-import { create as createToken } from './model'
+import { create as createToken, list as listTokens } from './model'
 
-export const list: APIGatewayProxyHandler = async event => {
-  return {
-    statusCode: 200,
-    body: JSON.stringify(
-      {
-        message: `Life's a peach, eat more apples!`,
-        input: event,
-      },
-      null,
-      2,
-    ),
-  }
+import { Response } from './types'
+
+const headers = {
+  'Access-Control-Allow-Origin': '*', // Required for CORS support to work
+  'Access-Control-Expose-Headers': 'kasl-key',
+  'Access-Control-Allow-Credentials': true, // Required for cookies, authorization headers with HTTPS
 }
 
-export const create: APIGatewayProxyHandler = async () => {
-  const token = await createToken()
+export const list: APIGatewayProxyHandler = async event => {
+  let response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(
+  try {
+    const data = await listTokens(event)
+
+    response.statusCode = 200
+
+    response.body = JSON.stringify(
       {
-        token,
+        data,
       },
       null,
       2,
-    ),
+    )
+  } catch (e) {
+    response.statusCode = e.status
+    response.body = JSON.stringify(
+      {
+        message: e.stack,
+      },
+      null,
+      2,
+    )
   }
+
+  return response
+}
+
+export const create: APIGatewayProxyHandler = async event => {
+  let response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  try {
+    const data = await createToken(event)
+
+    response.statusCode = 200
+
+    response.body = JSON.stringify(
+      {
+        data,
+      },
+      null,
+      2,
+    )
+  } catch (e) {
+    response.statusCode = e.status
+    response.body = JSON.stringify(
+      {
+        message: e.stack,
+      },
+      null,
+      2,
+    )
+  }
+
+  return response
 }
