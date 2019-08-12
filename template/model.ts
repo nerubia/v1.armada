@@ -1,24 +1,33 @@
 import massive from 'massive'
+import getEnv from './config'
 import { generateKey, hash } from './hasher'
 
 export const create = async () => {
-  let token
-  const database = await massive(process.env)
-  const client_id: string = generateKey()
+  const env = await getEnv([
+    'PGPORT',
+    'PGHOST',
+    'PGUSER',
+    'PGPASSWORD',
+    'PGDATABASE',
+  ])
+  let record
+
+  const database = await massive(env)
+  const key: string = generateKey()
 
   const rec = {
-    client_id,
-    client_secret: hash(client_id),
+    key,
+    secret: hash(key),
     used_at: '',
   }
 
-  token = await database.saveDoc('tokens', rec)
+  record = await database.saveDoc('records', rec)
 
+  // Not testable for now
+  /* istanbul ignore next */
   await database.withConnection(conn => {
-    // Not testable for now
-    /* istanbul ignore next */
     conn.pgp.end()
   })
 
-  return token
+  return record
 }

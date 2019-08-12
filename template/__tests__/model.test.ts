@@ -1,5 +1,8 @@
 import { create } from '../model'
-// import { Database } from 'massive'
+
+jest.mock('../config', () => {
+  return jest.fn().mockImplementation(() => [])
+})
 
 process.env.SECRET = 'testing'
 process.env.PORT = '5432'

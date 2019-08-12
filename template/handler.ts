@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 
-import { create as createToken } from './model'
+import { create as createRecord } from './model'
 
 export const list: APIGatewayProxyHandler = async event => {
   return {
@@ -17,13 +17,13 @@ export const list: APIGatewayProxyHandler = async event => {
 }
 
 export const create: APIGatewayProxyHandler = async () => {
-  const token = await createToken()
+  const record = await createRecord()
 
   return {
     statusCode: 200,
     body: JSON.stringify(
       {
-        token,
+        record,
       },
       null,
       2,
