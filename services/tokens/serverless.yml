@@ -25,10 +25,12 @@ functions:
     events:
       - http:
           method: post
+          cors: true
           path: tokens
   list:
     handler: handler.list
     events:
       - http:
           method: get
+          cors: true
           path: tokens
