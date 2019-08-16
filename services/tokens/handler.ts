@@ -30,7 +30,10 @@ export const list: APIGatewayProxyHandler = async event => {
       2,
     )
   } catch (e) {
-    response.statusCode = e.status
+    if (e.status) {
+      response.statusCode = e.status
+    }
+
     response.body = JSON.stringify(
       {
         message: e.stack,
@@ -63,7 +66,10 @@ export const create: APIGatewayProxyHandler = async event => {
       2,
     )
   } catch (e) {
-    response.statusCode = e.status
+    if (e.status) {
+      response.statusCode = e.status
+    }
+
     response.body = JSON.stringify(
       {
         message: e.stack,
