@@ -13,7 +13,7 @@
     "noUnusedLocals": true,
     "noImplicitThis": true,
     "paths": {
-      "@services/*": ["services/*"]
+      "services/*": ["services/*"]
     },
     "strictNullChecks": true,
     "noImplicitReturns": true,

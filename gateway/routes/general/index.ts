@@ -4,7 +4,7 @@ import {
   KastleRouter,
   KastleRoutes,
 } from '@g-six/kastle-router'
-import { sitrep } from '@services/general/handler'
+import { sitrep } from 'services/general/handler'
 
 const baseUrl = '/sitrep'
 

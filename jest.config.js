@@ -8,6 +8,9 @@ module.exports = {
     'mocks.ts',
     '/template/',
   ],
+  moduleNameMapper: {
+    '^services/(.*)$': '<rootDir>/services/$1',
+  },
   preset: 'ts-jest',
   rootDir: './',
   testEnvironment: 'node',
