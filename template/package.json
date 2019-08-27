@@ -1,5 +1,5 @@
 {
-  "name": "tokens",
+  "name": "armada-<replace-accordingly>",
   "version": "0.0.1",
   "description": "Armory microservices",
   "main": "handler.js",
@@ -11,26 +11,27 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@hapi/joi": "^15.1.0",
-    "aws-sdk": "^2.507.0",
-    "loadash": "^1.0.0",
+    "@g-six/swiss-knife": "^0.1.0",
+    "@hapi/joi": "^15.1.1",
+    "aws-sdk": "^2.517.0",
+    "lodash": "^4.17.15",
     "massive": "^5.11.2",
     "redis": "^2.8.0",
-    "source-map-support": "^0.5.10"
+    "source-map-support": "^0.5.13"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.17",
+    "@types/aws-lambda": "^8.10.31",
     "@types/hapi__joi": "^15.0.3",
-    "@types/lodash": "^4.14.136",
+    "@types/lodash": "^4.14.137",
     "@types/massive": "^5.4.3",
-    "@types/node": "^10.12.18",
+    "@types/node": "^12.7.2",
     "@types/redis": "^2.8.13",
-    "serverless": "^1.49.0",
+    "serverless": "^1.50.0",
     "serverless-offline": "^5.10.1",
     "serverless-plugin-typescript": "^1.1.9",
     "serverless-pseudo-parameters": "^2.4.0",
-    "ts-loader": "^5.3.3",
-    "typescript": "^3.2.4"
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3"
   },
   "author": "Modified by g-six based on serverless-plugin-typescript",
   "license": "MIT"

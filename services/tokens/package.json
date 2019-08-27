@@ -1,5 +1,5 @@
 {
-  "name": "tokens",
+  "name": "armada-tokens",
   "version": "0.0.1",
   "description": "Armory microservices",
   "main": "handler.js",

@@ -2,11 +2,19 @@ module.exports = {
   clearMocks: true,
   coverageDirectory: '../coverage',
   moduleFileExtensions: ['js', 'json', 'ts'],
-  coveragePathIgnorePatterns: ['/.serverless/', 'config.ts', 'mocks.ts'],
+  coveragePathIgnorePatterns: [
+    '/.serverless/',
+    'config.ts',
+    'mocks.ts',
+    '/template/',
+  ],
   preset: 'ts-jest',
-  rootDir: './services',
+  rootDir: './',
   testEnvironment: 'node',
-  testMatch: ['<rootDir>/**/*.test.ts'],
-  testPathIgnorePatterns: ['/node_modules/', '/.serverless/'],
+  testMatch: [
+    '<rootDir>/services/**/*.test.ts',
+    '<rootDir>/gateway/**/*.test.ts',
+  ],
+  testPathIgnorePatterns: ['/node_modules/', '/.serverless/', '/template/'],
   verbose: true,
 }

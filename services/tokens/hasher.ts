@@ -5,12 +5,12 @@ export const hash = (input: string) => {
     .digest('base64')
 }
 
-export const generateKey = (length: number = 30) => {
+export const generateKey = (length = 30) => {
   let result = ''
   const upcases = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const lowcases = 'abcdefghijklmnopqrstuvwxyz'
   const nums = '0123456789'
-  let characters = [upcases, lowcases, nums].join('')
+  const characters = [upcases, lowcases, nums].join('')
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length))
   }

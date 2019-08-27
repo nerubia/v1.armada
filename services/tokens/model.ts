@@ -58,8 +58,6 @@ export const create = async (event: APIGatewayProxyEvent) => {
     throw 403
   }
 
-  let token
-
   const client_id: string = generateKey()
 
   const rec = {
@@ -68,7 +66,7 @@ export const create = async (event: APIGatewayProxyEvent) => {
     used_at: '',
   }
 
-  token = await database.saveDoc('tokens', rec)
+  const token = await database.saveDoc('tokens', rec)
 
   await closeDb()
 

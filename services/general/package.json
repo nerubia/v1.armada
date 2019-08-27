@@ -1,5 +1,5 @@
 {
-  "name": "auth",
+  "name": "armada-sitrep",
   "version": "0.0.1",
   "description": "Armory microservices",
   "main": "handler.js",

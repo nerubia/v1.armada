@@ -11,7 +11,7 @@ const headers = {
 }
 
 export const list: APIGatewayProxyHandler = async event => {
-  let response: Response = {
+  const response: Response = {
     body: '',
     headers,
     statusCode: 500,
@@ -47,7 +47,7 @@ export const list: APIGatewayProxyHandler = async event => {
 }
 
 export const create: APIGatewayProxyHandler = async event => {
-  let response: Response = {
+  const response: Response = {
     body: '',
     headers,
     statusCode: 500,

@@ -1,0 +1,4 @@
+auth:
+  authenticate: 'Authenticate'
+  login: 'Log in'
+  sign_up: 'Sign up'

@@ -1,2 +1,4 @@
 *.test.ts
 *.config.js
+node_modules/
+services/**/node_modules/

@@ -16,4 +16,5 @@ rules:
   '@typescript-eslint/camelcase': off
   '@typescript-eslint/no-use-before-define': 'warn'
   '@typescript-eslint/explicit-function-return-type': off
+  'function-call-argument-newline': ['error', 'consistent']
   'no-use-before-define': off

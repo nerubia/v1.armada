@@ -1,6 +1,7 @@
 import { create, list } from '../handler'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 
+process.env.APP_SECRET = 'testing'
 describe('Records handler: list', () => {
   it('should return results', async () => {
     const spyCallback = jest.fn()

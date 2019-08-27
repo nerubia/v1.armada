@@ -4,7 +4,7 @@ jest.mock('../config', () => {
   return jest.fn().mockImplementation(() => [])
 })
 
-process.env.SECRET = 'testing'
+process.env.APP_SECRET = 'testing'
 process.env.PORT = '5432'
 
 let record = {}

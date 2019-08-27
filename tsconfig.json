@@ -5,12 +5,16 @@
     "target": "es6",
     "lib": ["es6", "dom"],
     "moduleResolution": "node",
+    "baseUrl": "./",
     "rootDir": "./",
     "sourceMap": true,
     "allowJs": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noImplicitThis": true,
+    "paths": {
+      "@services/*": ["services/*"]
+    },
     "strictNullChecks": true,
     "noImplicitReturns": true,
     "preserveConstEnums": true,
