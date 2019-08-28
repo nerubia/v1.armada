@@ -15,7 +15,6 @@ export const readLocales = async (): Promise<void> => {
   const files = await readdirSync(dir)
 
   for (let i = 0; i < files.length; i++) {
-    /* istanbul ignore else */
     if (files[i].split('.yaml').length === 2) {
       languages[basename(files[i], '.yaml')] = safeLoad(
         readFileSync(`${dir}/${files[i]}`, 'utf8'),
