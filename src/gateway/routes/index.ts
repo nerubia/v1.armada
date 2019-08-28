@@ -3,7 +3,7 @@ import Router = require('koa-router')
 import { KastleRouter, KastleRoute, MethodTypes } from '@g-six/kastle-router'
 import { Route as Sitrep } from './general'
 
-const loadRouteItem = (router: Router) => {
+export const loadRouteItem = (router: Router) => {
   return (route_item: KastleRoute) => {
     const { method, route, middlewares } = route_item
 
