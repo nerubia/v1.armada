@@ -55,6 +55,14 @@ describe('Records handler: login', () => {
     const actual = await login(mockEvent(body) as APIGatewayProxyEvent)
     expect(actual).toHaveProperty('statusCode', 400)
   })
+
+  it('should default to 500 status code', async () => {
+    const body = { email: 'error@test.me', password: 'test123' }
+
+    const actual = await login(mockEvent(body) as APIGatewayProxyEvent)
+
+    expect(actual).toHaveProperty('statusCode', 500)
+  })
 })
 
 // Mocks at the bottom as we rarely modify them

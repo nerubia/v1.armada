@@ -5,6 +5,8 @@ export const spyFindToken = jest.fn(({ client_id, client_secret }) => {
 })
 
 export const spyFindUsers = jest.fn(creds => {
+  if (creds.email === 'error@test.me') throw Error('Test error')
+
   return creds.email === email ? [{ id: 1, email }] : []
 })
 
