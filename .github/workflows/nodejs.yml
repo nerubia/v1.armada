@@ -3,12 +3,12 @@ name: Node CI
 on:
   push:
     branches:
-    - master
-    - integration
+      - master
+      - integration
   pull_request:
     branches:
-    - master
-    - integration
+      - master
+      - integration
 
 jobs:
   test:
@@ -19,18 +19,17 @@ jobs:
         node_version: [10, 12]
         os: [ubuntu-18.04, macOS-latest]
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node_version }}
-      uses: actions/setup-node@v1
-      with:
-        version: ${{ matrix.node_version }}
-    - name: npm install and test
-      run: |
-        npm install
-        npm test -- --coverage
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          version: ${{ matrix.node_version }}
+      - name: npm install and test
+        run: |
+          npm install
+          npm test -- --coverage
 
   build:
-
     runs-on: ubuntu-18.04
 
     strategy:
@@ -38,13 +37,13 @@ jobs:
         node-version: [8.x, 10.x, 12.x]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
-      run: |
-        npm install
-        npm run build --if-present
-        npm test
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npm run build --if-present
+          npm test
