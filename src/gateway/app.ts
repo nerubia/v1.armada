@@ -1,4 +1,5 @@
 import Cors = require('@koa/cors')
+import AWS from 'aws-sdk'
 import Koa = require('koa')
 import bodyParser = require('koa-bodyparser')
 import { Database } from 'massive'
@@ -37,6 +38,15 @@ const attachDB = (database: Database) => (
 }
 
 const startApp = (database: Database): Server => {
+  const aws_config = {
+    access_key_id: process.env.AWS_ACCESS_KEY_ID,
+    access_key_secret: process.env.AWS_SECRET_ACCESS_KEY,
+    region: 'ap-southeast-1',
+  }
+  AWS.config.update(aws_config)
+  console.log('AWS configuration')
+  console.log(JSON.stringify(aws_config, null, 2))
+
   // Attaches the database to app context
   app.use(attachDB(database))
   loadServices(app)
