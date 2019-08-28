@@ -41,7 +41,7 @@ const startApp = (database: Database): Server => {
   const aws_config = {
     access_key_id: process.env.AWS_ACCESS_KEY_ID,
     access_key_secret: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'ap-southeast-1',
+    region: process.env.AWS_DEFAULT_REGION,
   }
   AWS.config.update(aws_config)
   console.log('AWS configuration')
