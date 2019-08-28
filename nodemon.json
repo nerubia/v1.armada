@@ -1,10 +1,10 @@
 {
-  "watch": ["services/**/*", "gateway/**/*", "tsconfig.json", "index.d.ts"],
+  "watch": ["src/**/*", "tsconfig.json", "index.d.ts"],
   "ext": "ts js json",
   "ignore": [
-    "gateway/**/*.test.ts",
-    "services/**/*.test.ts",
-    "services/**/*.intr-test.ts"
+    "src/gateway/**/*.test.ts",
+    "src/services/**/*.test.ts",
+    "src/services/**/*.intr-test.ts"
   ],
-  "exec": "ts-node -r tsconfig-paths/register ./gateway"
+  "exec": "ts-node -r tsconfig-paths/register ./src/gateway"
 }

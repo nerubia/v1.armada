@@ -1,6 +1,6 @@
 import { create } from '../model'
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import { hash } from '../../../template/hasher'
+import { hash } from '../hasher'
 
 jest.mock('../config', () => {
   return jest.fn().mockImplementation(() => [])

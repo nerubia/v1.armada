@@ -12,7 +12,7 @@ module.exports = {
     '^services/(.*)$': '<rootDir>/services/$1',
   },
   preset: 'ts-jest',
-  rootDir: './',
+  rootDir: './src/',
   testEnvironment: 'node',
   testMatch: [
     '<rootDir>/services/**/*.test.ts',
