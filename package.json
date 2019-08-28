@@ -15,7 +15,7 @@
     "logs": "serverless logs",
     "remove": "serverless remove",
     "start": "NODE_PORT=8888 ./node_modules/.bin/nodemon",
-    "test": "jest"
+    "test": "rimraf ./coverage && jest"
   },
   "repository": {
     "type": "git",
