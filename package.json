@@ -10,7 +10,7 @@
     "s:1": "serverless create --template-path template --path ./src/services/$NAME/. --name $NAME",
     "s:2": "cd ./src/services/$NAME && npm i",
     "create": "npm run s:0 && npm run s:1 && npm run s:2",
-    "deploy": "cd ./src/services/$NAME && serverless deploy",
+    "deploy": "cd ./src/services/$NAME && npm i && serverless deploy",
     "invoke": "serverless invoke",
     "logs": "serverless logs",
     "remove": "serverless remove",
@@ -63,14 +63,14 @@
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2",
     "pretty-quick": "^1.11.1",
-    "serverless": "^1.50.1",
+    "serverless": "^1.51.0",
     "serverless-domain-manager": "^3.3.0",
     "serverless-offline": "^5.10.1",
     "serverless-plugin-typescript": "^1.1.9",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "tsconfig-paths": "^3.8.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.6.2"
   },
   "lint-staged": {
     "*.(j|t)s": [
