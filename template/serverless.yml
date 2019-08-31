@@ -33,12 +33,30 @@ functions:
     events:
       - http:
           method: post
-          cors: true
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: enter-post-path
   list:
     handler: handler.list
     events:
       - http:
           method: get
-          cors: true
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: enter-get-path
