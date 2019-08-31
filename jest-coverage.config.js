@@ -1,6 +1,6 @@
 module.exports = {
   clearMocks: true,
-  coverageDirectory: '../coverage',
+  coverageDirectory: '../../coverages/armada',
   moduleFileExtensions: ['js', 'json', 'ts'],
   coveragePathIgnorePatterns: [
     '/.serverless/',
