@@ -33,7 +33,7 @@ functions:
     events:
       - http:
           method: post
-          cors: 
+          cors:
             origin: '*' # <-- Specify allowed origin
             headers: # <-- Specify allowed headers
               - Content-Type
@@ -49,7 +49,7 @@ functions:
     events:
       - http:
           method: get
-          cors: 
+          cors:
             origin: '*' # <-- Specify allowed origin
             headers: # <-- Specify allowed headers
               - Content-Type
