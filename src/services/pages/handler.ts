@@ -17,18 +17,36 @@ const headers = {
 }
 
 export const list: APIGatewayProxyHandler = async event => {
-  const records = await listRecords(event)
-  return {
-    statusCode: 200,
+  const response: Response = {
+    body: '',
     headers,
-    body: JSON.stringify(
+    statusCode: 500,
+  }
+
+  try {
+    const records = await listRecords(event)
+    response.statusCode = 200
+
+    response.body = JSON.stringify(
       {
         records,
       },
       null,
       2,
-    ),
+    )
+  } catch (e) {
+    if (e.status) response.statusCode = e.status
+
+    response.body = JSON.stringify(
+      {
+        message: e.stack,
+      },
+      null,
+      2,
+    )
   }
+
+  return response
 }
 
 export const retrieve: APIGatewayProxyHandler = async event => {

@@ -32,6 +32,7 @@ jest.mock('massive', () =>
     users: {
       findDoc: jest.fn(() => [
         {
+          id: 1,
           email,
           logged_in_at,
         },
@@ -65,12 +66,14 @@ describe('List records', () => {
   it(`should be able to list records`, async () => {
     const actual = await list(({
       queryStringParameters: { contents: 'asd' },
+      headers: {},
     } as unknown) as APIGatewayProxyEvent)
     expect(actual).toEqual(record)
   })
   it(`should be able to list paginated records`, async () => {
     const actual = await list(({
       queryStringParameters: { limit: 2 },
+      headers: {},
     } as unknown) as APIGatewayProxyEvent)
     expect(actual).toEqual(record)
   })
