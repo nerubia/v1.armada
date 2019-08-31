@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { hash } from '../hasher'
-import { create, retrieve } from '../model'
+import { create, list, retrieve } from '../model'
 
 jest.mock('../config', () => {
   return jest.fn().mockImplementation(() => [])
@@ -57,6 +57,21 @@ describe('Create record', () => {
       headers: { 'kasl-key': kasl_key },
     } as unknown) as APIGatewayProxyEvent)
 
+    expect(actual).toEqual(record)
+  })
+})
+
+describe('List records', () => {
+  it(`should be able to list records`, async () => {
+    const actual = await list(({
+      queryStringParameters: { contents: 'asd' },
+    } as unknown) as APIGatewayProxyEvent)
+    expect(actual).toEqual(record)
+  })
+  it(`should be able to list paginated records`, async () => {
+    const actual = await list(({
+      queryStringParameters: { limit: 2 },
+    } as unknown) as APIGatewayProxyEvent)
     expect(actual).toEqual(record)
   })
 })

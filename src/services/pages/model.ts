@@ -22,8 +22,6 @@ export const verifyUser = async (kasl_key: string): Promise<boolean> => {
 
   const recs = await database.users.findDoc({ kasl_key })
 
-  await closeDb()
-
   return (
     recs.length === 1 &&
     hash(`${recs[0].email}${recs[0].logged_in_at}`) === kasl_key
@@ -69,6 +67,32 @@ export const create = async (event: APIGatewayProxyEvent) => {
   return record
 }
 
+export const list = async (event: APIGatewayProxyEvent) => {
+  const query = event.queryStringParameters
+  const filters = {}
+  const options = {}
+  options['limit'] = 1
+
+  if (query) {
+    if (query.contents) {
+      filters['contents'] = query.contents
+    }
+
+    if (query.limit) {
+      options['limit'] = query.limit
+    }
+  }
+
+  env = await getEnv(['PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'])
+
+  database = await massive(env)
+
+  const record = await database.pages.findDoc(filters, options)
+
+  await closeDb()
+
+  return record
+}
 export const retrieve = async (event: APIGatewayProxyEvent) => {
   env = await getEnv(['PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'])
 

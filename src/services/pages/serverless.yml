@@ -34,11 +34,11 @@ functions:
       - http:
           method: post
           cors: true
-          path: enter-post-path
+          path: pages
   list:
     handler: handler.list
     events:
       - http:
           method: get
           cors: true
-          path: enter-get-path
+          path: pages

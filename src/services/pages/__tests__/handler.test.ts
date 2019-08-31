@@ -1,4 +1,4 @@
-import { create, retrieve } from '../handler'
+import { create, list, retrieve } from '../handler'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import { hash } from '../hasher'
 
@@ -13,6 +13,19 @@ describe('Records handler: create', () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
     const actual = await create(
+      mockEvent() as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 200)
+  })
+})
+
+describe('Records handler: list', () => {
+  it('should list records', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await list(
       mockEvent() as APIGatewayProxyEvent,
       context,
       spyCallback,
@@ -52,6 +65,9 @@ jest.mock('massive', () =>
     saveDoc: jest.fn((undefined, doc) => {
       return doc
     }),
+    pages: {
+      findDoc: jest.fn(filter => [filter]),
+    },
     users: {
       findDoc: jest.fn(() => [
         {

@@ -4,16 +4,3 @@ export const hash = (input: string) => {
     .update(process.env.APP_SECRET)
     .digest('base64')
 }
-
-export const generateKey = (length = 30) => {
-  let result = ''
-  const upcases = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  const lowcases = 'abcdefghijklmnopqrstuvwxyz'
-  const nums = '0123456789'
-  const characters = [upcases, lowcases, nums].join('')
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length))
-  }
-
-  return result
-}
