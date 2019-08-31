@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  armada:
+    build:
+      context: .
+      target: dev
+    command: ['npm', 'start']
+    container_name: 'armada'
+    env_file: './.env'
+    ports:
+      - '8888:8888'
+    restart: unless-stopped
+    volumes:
+      - ./.git:/app/.git:ro
+      - ./src:/app/src
+      - ./nodemon.json:/app/nodemon.json
+networks:
+  default:
+    name: ksl-network
