@@ -41,6 +41,16 @@ jest.mock('massive', () =>
 )
 
 describe('Create record', () => {
+  it(`should throw 403 if kasl-key not set`, async () => {
+    try {
+      await create(({
+        body: `{ "contents": "just a test" }`,
+        headers: {},
+      } as unknown) as APIGatewayProxyEvent)
+    } catch (e) {
+      expect(e).toHaveProperty('status', 403)
+    }
+  })
   it(`should be able to create record`, async () => {
     const actual = await create(({
       body: `{ "contents": "just a test" }`,
@@ -52,6 +62,13 @@ describe('Create record', () => {
 })
 
 describe('Retrieve record', () => {
+  it(`should throw 400 if parameters not set`, async () => {
+    try {
+      await create(({} as unknown) as APIGatewayProxyEvent)
+    } catch (e) {
+      expect(e).toHaveProperty('status', 400)
+    }
+  })
   it(`should be able to retrieve record`, async () => {
     const actual = await retrieve(({
       pathParameters: { page_id: 1 },
