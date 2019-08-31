@@ -1,0 +1,44 @@
+service:
+  name: pages
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-typescript
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  profile: codefantry
+  runtime: nodejs10.x
+  region: ap-southeast-1
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'ssm:GetParameters'
+      Resource: 'arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*'
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': ${self:custom.stage}-ApiGatewayRestApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': ${self:custom.stage}-ApiGatewayRestApiRootResourceId
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+
+functions:
+  create:
+    handler: handler.create
+    environment:
+      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
+    events:
+      - http:
+          method: post
+          cors: true
+          path: pages
+  list:
+    handler: handler.list
+    events:
+      - http:
+          method: get
+          cors: true
+          path: pages
