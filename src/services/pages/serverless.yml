@@ -46,6 +46,8 @@ functions:
           path: pages
   list:
     handler: handler.list
+    environment:
+      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
     events:
       - http:
           method: get
