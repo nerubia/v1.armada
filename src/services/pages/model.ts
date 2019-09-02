@@ -1,8 +1,11 @@
 import { HttpStatus } from '@g-six/kastle-router'
+import { invalidRequestReducer } from '@g-six/swiss-knife'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import massive from 'massive'
 import getEnv from './config'
 import { hash } from './hasher'
+import { schema } from './schema'
+import { Page, ValidationError } from './types'
 
 let database: massive.Database
 let env: massive.ConnectionInfo
@@ -14,6 +17,17 @@ export const closeDb = async () => {
     conn.pgp.end()
   })
 }
+
+export const validateInput = (input: Page): void | ValidationError => {
+  const result = schema.validate(input, { abortEarly: false })
+
+  if (result.error) {
+    const validation_errors = invalidRequestReducer(result.error.details)
+    return validation_errors
+  }
+  return
+}
+
 
 export const verifyUser = async (kasl_key: string): Promise<boolean> => {
   env = await getEnv(['PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'])
@@ -36,6 +50,16 @@ export const create = async (event: APIGatewayProxyEvent) => {
       status: 400,
     }
   }
+  const { contents, title } = JSON.parse(event.body)
+
+  const validation_errors = validateInput({ contents, title })
+  if (validation_errors) {
+    throw {
+      errors: validation_errors.errors,
+      message: HttpStatus.E_400,
+      status: 400,
+    }
+  }
 
   const kasl_key = event.headers['kasl-key']
 
@@ -48,8 +72,6 @@ export const create = async (event: APIGatewayProxyEvent) => {
       status: 403,
     }
   }
-
-  const { contents, title } = JSON.parse(event.body)
 
   const [date, time] = new Date().toISOString().split('T')
   const created_at = `${date} ${time.substring(0, 8)}`
