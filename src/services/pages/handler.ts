@@ -1,9 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 
 import {
+  closeDb,
   create as createRecord,
   list as listRecords,
   retrieve as retrieveRecord,
+  verifyUser,
 } from './model'
 
 import { Response } from './types'
@@ -24,11 +26,23 @@ export const list: APIGatewayProxyHandler = async event => {
   }
 
   try {
+    let data
+    const kasl_key = event.headers && event.headers['kasl-key']
+    if (kasl_key) {
+      data = {
+        user: {
+          id: await verifyUser(kasl_key),
+        },
+      }
+      await closeDb()
+    }
+
     const records = await listRecords(event)
     response.statusCode = 200
 
     response.body = JSON.stringify(
       {
+        data,
         records,
       },
       null,

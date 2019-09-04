@@ -13,7 +13,10 @@ describe('Records handler: create', () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
     const actual = await create(
-      mockEvent() as APIGatewayProxyEvent,
+      mockEvent({
+        title: 'A Test',
+        contents: '# Testing',
+      }) as APIGatewayProxyEvent,
       context,
       spyCallback,
     )
@@ -23,7 +26,10 @@ describe('Records handler: create', () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
     const actual = await create(
-      mockEvent({}, { 'kasl-key': 'xxx' }) as APIGatewayProxyEvent,
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        { 'kasl-key': 'xxx' },
+      ) as APIGatewayProxyEvent,
       context,
       spyCallback,
     )
@@ -34,7 +40,10 @@ describe('Records handler: create', () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
     const actual = await create(
-      mockEvent({}, { 'kasl-key': 'error' }) as APIGatewayProxyEvent,
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        { 'kasl-key': 'error' },
+      ) as APIGatewayProxyEvent,
       context,
       spyCallback,
     )
@@ -47,12 +56,25 @@ describe('Records handler: list', () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
     const actual = await list(
-      mockEvent() as APIGatewayProxyEvent,
+      mockEvent({}, {}) as APIGatewayProxyEvent,
       context,
       spyCallback,
     )
     expect(actual).toHaveProperty('statusCode', 200)
   })
+
+  it('should also provide user info if kasl_key passed in request', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await list(
+      mockEvent({}) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    const body = JSON.parse(actual['body'])
+    expect(body).toHaveProperty('data', { user: { id: 69 } })
+  })
+
   it('should result in error if kasl-key passed was invalid', async () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any

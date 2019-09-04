@@ -28,7 +28,6 @@ export const validateInput = (input: Page): void | ValidationError => {
   return
 }
 
-
 export const verifyUser = async (kasl_key: string): Promise<boolean> => {
   env = await getEnv(['PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'])
 
@@ -93,9 +92,10 @@ export const create = async (event: APIGatewayProxyEvent) => {
 
 export const list = async (event: APIGatewayProxyEvent) => {
   const kasl_key = event.headers['kasl-key']
+  let user_id
 
   if (kasl_key) {
-    const user_id = await verifyUser(kasl_key)
+    user_id = await verifyUser(kasl_key)
 
     if (!user_id) {
       await closeDb()
@@ -137,11 +137,11 @@ export const list = async (event: APIGatewayProxyEvent) => {
     }
   }
 
-  const record = await database.pages.findDoc(filters, options)
+  const records = await database.pages.findDoc(filters, options)
 
   await closeDb()
 
-  return record
+  return records
 }
 export const retrieve = async (event: APIGatewayProxyEvent) => {
   env = await getEnv(['PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'])

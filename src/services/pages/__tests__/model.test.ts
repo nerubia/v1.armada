@@ -12,6 +12,7 @@ process.env.PORT = '5432'
 const email = 'user@test.me'
 const logged_in_at = new Date().toISOString()
 const kasl_key = hash(`${email}${logged_in_at}`)
+const body = `{ "contents": "just a test", "title": "A Test" }`
 
 let record = {}
 
@@ -45,16 +46,26 @@ describe('Create record', () => {
   it(`should throw 403 if kasl-key not set`, async () => {
     try {
       await create(({
-        body: `{ "contents": "just a test" }`,
+        body,
         headers: {},
       } as unknown) as APIGatewayProxyEvent)
     } catch (e) {
       expect(e).toHaveProperty('status', 403)
     }
   })
+  it(`should return error if schema requirements was unmet`, async () => {
+    try {
+      await create(({
+        body: `{ "contents": "just a test" }`,
+        headers: { 'kasl-key': kasl_key },
+      } as unknown) as APIGatewayProxyEvent)
+    } catch (e) {
+      expect(e).toHaveProperty('status', 400)
+    }
+  })
   it(`should be able to create record`, async () => {
     const actual = await create(({
-      body: `{ "contents": "just a test" }`,
+      body,
       headers: { 'kasl-key': kasl_key },
     } as unknown) as APIGatewayProxyEvent)
 
