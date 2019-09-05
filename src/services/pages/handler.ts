@@ -1,4 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
+import pick from 'lodash/pick'
 
 import {
   closeDb,
@@ -102,6 +103,7 @@ export const create: APIGatewayProxyHandler = async event => {
     response.body = JSON.stringify(
       {
         message: e.stack,
+        ...pick(e, ['error', 'errors', 'message']),
       },
       null,
       2,
