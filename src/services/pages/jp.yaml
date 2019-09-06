@@ -1,0 +1,6 @@
+contents:
+  any:
+    required: '内容が必要です'
+title:
+  any:
+    required: 'タイトルが必要です'

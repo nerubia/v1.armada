@@ -1,0 +1,6 @@
+contents:
+  any:
+    required: 'Content is required'
+title:
+  any:
+    required: 'Title is required'

@@ -1,4 +1,6 @@
+import { loadLocale } from '@g-six/swiss-knife'
 import { APIGatewayProxyHandler } from 'aws-lambda'
+import getValue from 'lodash/get'
 import pick from 'lodash/pick'
 
 import {
@@ -99,11 +101,23 @@ export const create: APIGatewayProxyHandler = async event => {
     )
   } catch (e) {
     if (e.status) response.statusCode = e.status
+    const errors = {}
+    if (e.errors) {
+      const locale = loadLocale(__dirname + '/jp.yaml')
+      for (const key in e.errors) {
+        errors[key] = getValue(
+          locale,
+          `${key}.${e.errors[key]}`,
+          `${key}.${e.errors[key]}`,
+        )
+      }
+    }
 
     response.body = JSON.stringify(
       {
+        errors,
         message: e.stack,
-        ...pick(e, ['error', 'errors', 'message']),
+        ...pick(e, ['error', 'message']),
       },
       null,
       2,
