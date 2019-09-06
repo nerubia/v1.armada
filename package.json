@@ -15,8 +15,8 @@
     "logs": "serverless logs",
     "remove": "cd ./src/services/$NAME && serverless remove && rimraf ./src/services/$NAME/node_modules",
     "start": "NODE_PORT=8888 ./node_modules/.bin/nodemon",
-    "test": "rimraf ../coverages/armada && jest",
-    "coverage": "rimraf ../coverages/armada && jest --coverage --config jest-coverage.config.js"
+    "test": "rimraf coverage/* && jest",
+    "coverage": "rimraf coverage/* && jest --coverage --config jest-coverage.config.js"
   },
   "repository": {
     "type": "git",
