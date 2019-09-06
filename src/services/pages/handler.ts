@@ -103,7 +103,7 @@ export const create: APIGatewayProxyHandler = async event => {
     if (e.status) response.statusCode = e.status
     const errors = {}
     if (e.errors) {
-      const locale = loadLocale(__dirname + '/jp.yaml')
+      const locale = loadLocale(__dirname + '/lang/jp.yaml')
       for (const key in e.errors) {
         errors[key] = getValue(
           locale,

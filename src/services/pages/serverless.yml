@@ -1,6 +1,10 @@
 service:
   name: pages
 
+package:
+  include:
+    - 'lang/*.yaml'
+
 plugins:
   - serverless-offline
   - serverless-plugin-typescript
