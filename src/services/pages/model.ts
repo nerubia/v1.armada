@@ -1,21 +1,32 @@
 import { HttpStatus } from '@g-six/kastle-router'
 import { invalidRequestReducer } from '@g-six/swiss-knife'
 import { APIGatewayProxyEvent } from 'aws-lambda'
+import pick from 'lodash/pick'
 import massive from 'massive'
 import getEnv from './config'
 import { hash } from './hasher'
 import { schema } from './schema'
 import { Page, ValidationError } from './types'
 
-let database: massive.Database
-let env: massive.ConnectionInfo
-
-export const closeDb = async () => {
+export const closeDb = async (db: massive.Database) => {
   // Not testable for now
   /* istanbul ignore next */
-  await database.withConnection(conn => {
+  await db.withConnection(conn => {
     conn.pgp.end()
   })
+}
+
+export const connectDb = async () => {
+  const db_options = await getEnv([
+    'PGPORT',
+    'PGHOST',
+    'PGUSER',
+    'PGPASSWORD',
+    'PGDATABASE',
+  ])
+  const db = await massive(db_options)
+
+  return db
 }
 
 export const validateInput = (input: Page): void | ValidationError => {
@@ -28,21 +39,34 @@ export const validateInput = (input: Page): void | ValidationError => {
   return
 }
 
-export const verifyUser = async (kasl_key: string): Promise<boolean> => {
-  env = await getEnv(['PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'])
-
-  database = await massive(env)
-
-  const recs = await database.users.findDoc({ kasl_key })
-
-  return (
-    recs.length === 1 &&
-    hash(`${recs[0].email}${recs[0].logged_in_at}`) === kasl_key &&
-    recs[0].id
-  )
+interface UserInterface {
+  id: number
+  lang?: string
 }
 
-export const create = async (event: APIGatewayProxyEvent) => {
+type UserVerificationResult = UserInterface | undefined
+
+export const verifyUser = async (
+  kasl_key: string,
+  db: massive.Database,
+): Promise<UserVerificationResult> => {
+  const recs = await db.users.findDoc({ kasl_key })
+
+  if (
+    recs.length != 1 ||
+    hash(`${recs[0].email}${recs[0].logged_in_at}`) != kasl_key
+  ) {
+    return
+  } else {
+    return pick(recs[0], ['email', 'id', 'lang', 'logged_in_at'])
+  }
+}
+
+export const create = async (
+  event: APIGatewayProxyEvent,
+  user_id: number,
+  db: massive.Database,
+) => {
   if (!event.body) {
     throw {
       message: HttpStatus.E_400,
@@ -60,18 +84,6 @@ export const create = async (event: APIGatewayProxyEvent) => {
     }
   }
 
-  const kasl_key = event.headers['kasl-key']
-
-  const user_id = await verifyUser(kasl_key)
-
-  if (!user_id) {
-    await closeDb()
-    throw {
-      message: HttpStatus.E_403,
-      status: 403,
-    }
-  }
-
   const [date, time] = new Date().toISOString().split('T')
   const created_at = `${date} ${time.substring(0, 8)}`
 
@@ -83,38 +95,15 @@ export const create = async (event: APIGatewayProxyEvent) => {
     updated_at: null,
   }
 
-  const record = await database.saveDoc('pages', rec)
-
-  await closeDb()
+  const record = await db.saveDoc('pages', rec)
 
   return record
 }
 
-export const list = async (event: APIGatewayProxyEvent) => {
-  const kasl_key = event.headers['kasl-key']
-  let user_id
-
-  if (kasl_key) {
-    user_id = await verifyUser(kasl_key)
-
-    if (!user_id) {
-      await closeDb()
-      throw {
-        message: HttpStatus.E_403,
-        status: 403,
-      }
-    }
-  } else {
-    env = await getEnv([
-      'PGPORT',
-      'PGHOST',
-      'PGUSER',
-      'PGPASSWORD',
-      'PGDATABASE',
-    ])
-    database = await massive(env)
-  }
-
+export const list = async (
+  event: APIGatewayProxyEvent,
+  db: massive.Database,
+) => {
   const query = event.queryStringParameters
   const filters = {}
   const options = {}
@@ -137,20 +126,15 @@ export const list = async (event: APIGatewayProxyEvent) => {
     }
   }
 
-  const records = await database.pages.findDoc(filters, options)
-
-  await closeDb()
-
+  const records = await db.pages.findDoc(filters, options)
   return records
 }
-export const retrieve = async (event: APIGatewayProxyEvent) => {
-  env = await getEnv(['PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'])
 
-  database = await massive(env)
-
-  const record = await database.pages.findDoc(event.pathParameters)
-
-  await closeDb()
+export const retrieve = async (
+  event: APIGatewayProxyEvent,
+  db: massive.Database,
+) => {
+  const record = await db.pages.findDoc(event.pathParameters)
 
   return record
 }

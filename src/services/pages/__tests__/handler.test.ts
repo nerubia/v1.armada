@@ -22,6 +22,21 @@ describe('Records handler: create', () => {
     )
     expect(actual).toHaveProperty('statusCode', 200)
   })
+
+  it('should result in an error if auth key not present', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await create(
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        {},
+      ) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 403)
+  })
+
   it('should result in an error if no valid auth key', async () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
@@ -34,6 +49,31 @@ describe('Records handler: create', () => {
       spyCallback,
     )
     expect(actual).toHaveProperty('statusCode', 403)
+  })
+
+  it('should result in an error if no data in request', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await create(
+      mockEvent(undefined, { 'kasl-key': 'xxx' }) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 400)
+  })
+
+  it('should result in an error if no data in request', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await create(
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        { 'kasl-key': 'more errors' },
+      ) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 400)
   })
 
   it('should default to error 500 on system error', async () => {
@@ -72,7 +112,12 @@ describe('Records handler: list', () => {
       spyCallback,
     )
     const body = JSON.parse(actual['body'])
-    expect(body).toHaveProperty('data', { user: { id: 69 } })
+    const user = {
+      id: 69,
+      email,
+      logged_in_at,
+    }
+    expect(body).toHaveProperty('data', { user })
   })
 
   it('should result in error if kasl-key passed was invalid', async () => {
@@ -84,6 +129,17 @@ describe('Records handler: list', () => {
       spyCallback,
     )
     expect(actual).toHaveProperty('statusCode', 403)
+  })
+
+  it('should set statusCode if error contains status value', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await list(
+      mockEvent({}, { 'kasl-key': 'more errors' }) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 400)
   })
 
   it('should default to error 500 on system error', async () => {
@@ -146,7 +202,17 @@ jest.mock('massive', () =>
     users: {
       findDoc: jest.fn(filter => {
         if (filter.kasl_key === 'error') {
-          throw 'Generic error'
+          throw {
+            message: 'Generic error',
+          }
+        }
+
+        if (filter.kasl_key === 'more errors') {
+          throw {
+            errors: { title: 'any.required' },
+            message: 'Generic error',
+            status: 400,
+          }
         }
         return [
           {
@@ -162,7 +228,7 @@ jest.mock('massive', () =>
 
 const getBodyString = JSON.stringify
 const mockEvent = (
-  data: {} = {},
+  data?: {},
   headers: {} = { 'kasl-key': kasl_key },
   httpMethod: string = 'GET',
 ) => ({
