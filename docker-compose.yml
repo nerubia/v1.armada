@@ -14,7 +14,11 @@ services:
     volumes:
       - ./.git:/app/.git:ro
       - ./src:/app/src
+      - ../coverages/armada:/app/coverage
+      - ./jest.config.js:/app/jest.config.js
+      - ./jest-coverage.config.js:/app/jest-coverage.config.js
       - ./nodemon.json:/app/nodemon.json
+      - ./package.json:/app/package.json
 networks:
   default:
     name: ksl-network
