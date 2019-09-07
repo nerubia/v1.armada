@@ -1,5 +1,5 @@
 import { HttpStatus } from '@g-six/kastle-router'
-import { invalidRequestReducer, kebabCase } from '@g-six/swiss-knife'
+import { generateUri, invalidRequestReducer } from '@g-six/swiss-knife'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import pick from 'lodash/pick'
 import massive from 'massive'
@@ -86,7 +86,7 @@ export const create = async (
 
   const [date, time] = new Date().toISOString().split('T')
   const created_at = `${date} ${time.substring(0, 8)}`
-  const slug = date + '-' + kebabCase(title)
+  const slug = date + '-' + generateUri(title)
 
   const rec = {
     contents,
