@@ -1,6 +1,8 @@
 contents:
   any:
+    empty: '内容が必要です'
     required: '内容が必要です'
 title:
   any:
+    empty: 'タイトルが必要です'
     required: 'タイトルが必要です'

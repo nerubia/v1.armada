@@ -1,6 +1,6 @@
 import { HttpStatus } from '@g-six/kastle-router'
 import { loadLocale } from '@g-six/swiss-knife'
-import { APIGatewayProxyHandler } from 'aws-lambda'
+import { APIGatewayProxyHandler, APIGatewayProxyEvent } from 'aws-lambda'
 import getValue from 'lodash/get'
 import pick from 'lodash/pick'
 import {
@@ -21,103 +21,6 @@ const headers = {
   'Access-Control-Expose-Headers': 'kasl-key',
   'Access-Control-Allow-Credentials': true, // Required for cookies, authorization headers with HTTPS
   'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-}
-
-export const list: APIGatewayProxyHandler = async event => {
-  const response: Response = {
-    body: '',
-    headers,
-    statusCode: 500,
-  }
-
-  const db = await connectDb()
-  try {
-    let data
-    const kasl_key = event.headers && event.headers['kasl-key']
-    if (kasl_key) {
-      const user = await verifyUser(kasl_key, db)
-      if (!user) {
-        response.body = JSON.stringify(
-          {
-            error: HttpStatus.E_403,
-          },
-          null,
-          2,
-        )
-        response.statusCode = 403
-        return response
-      }
-
-      data = {
-        user,
-      }
-    }
-
-    const records = await listRecords(event, db)
-    response.statusCode = 200
-
-    response.body = JSON.stringify(
-      {
-        data,
-        records,
-      },
-      null,
-      2,
-    )
-  } catch (e) {
-    if (e.status) response.statusCode = e.status
-
-    response.body = JSON.stringify(
-      {
-        message: e.stack,
-      },
-      null,
-      2,
-    )
-  }
-
-  await closeDb(db)
-  return response
-}
-
-export const retrieve: APIGatewayProxyHandler = async event => {
-  const response: Response = {
-    body: '',
-    headers,
-    statusCode: 500,
-  }
-
-  let user
-  const db = await connectDb()
-  const [record] = await retrieveRecord(event, db)
-
-  if (event.headers['kasl-key']) {
-    user = await verifyUser(event.headers['kasl-key'], db)
-
-    if (!user || !user.id) {
-      await closeDb(db)
-      response.body = JSON.stringify({ error: HttpStatus.E_403 }, null, 2)
-      response.statusCode = 403
-      return response
-    }
-  }
-
-  await closeDb(db)
-
-  response.statusCode = 200
-  if (record) {
-    response.body = JSON.stringify(
-      {
-        data: {
-          user,
-        },
-        record,
-      },
-      null,
-      2,
-    )
-  }
-  return response
 }
 
 export const create: APIGatewayProxyHandler = async event => {
@@ -191,7 +94,117 @@ export const create: APIGatewayProxyHandler = async event => {
   return response
 }
 
-export const update: APIGatewayProxyHandler = async event => {
+export const list: APIGatewayProxyHandler = async event => {
+  const response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  const db = await connectDb()
+  try {
+    let data
+    const kasl_key = event.headers && event.headers['kasl-key']
+    if (kasl_key) {
+      const user = await verifyUser(kasl_key, db)
+      if (!user) {
+        response.body = JSON.stringify(
+          {
+            error: HttpStatus.E_403,
+          },
+          null,
+          2,
+        )
+        response.statusCode = 403
+        return response
+      }
+
+      data = {
+        user,
+      }
+    }
+
+    const records = await listRecords(event, db)
+    response.statusCode = 200
+
+    response.body = JSON.stringify(
+      {
+        data,
+        records,
+      },
+      null,
+      2,
+    )
+  } catch (e) {
+    if (e.status) response.statusCode = e.status
+
+    response.body = JSON.stringify(
+      {
+        message: e.stack,
+      },
+      null,
+      2,
+    )
+  }
+
+  await closeDb(db)
+  return response
+}
+
+export const retrieve = async (event: APIGatewayProxyEvent) => {
+  const response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  if (!event.pathParameters) {
+    response.statusCode = 400
+    return response
+  }
+
+  let user
+  const db = await connectDb()
+  const [record] = await retrieveRecord(event.pathParameters['identifier'], db)
+
+  if (event.headers['kasl-key']) {
+    user = await verifyUser(event.headers['kasl-key'], db)
+
+    if (!user || !user.id) {
+      await closeDb(db)
+      response.body = JSON.stringify({ error: HttpStatus.E_403 }, null, 2)
+      response.statusCode = 403
+      return response
+    }
+  }
+
+  await closeDb(db)
+
+  response.statusCode = 200
+  if (record) {
+    response.body = JSON.stringify(
+      {
+        data: {
+          user,
+        },
+        record,
+      },
+      null,
+      2,
+    )
+  }
+  return response
+}
+
+export const record: APIGatewayProxyHandler = async event => {
+  if (event.httpMethod === 'PUT') {
+    return await update(event)
+  }
+
+  return await retrieve(event)
+}
+
+export const update = async (event: APIGatewayProxyEvent) => {
   const response: Response = {
     body: '',
     headers,
@@ -220,7 +233,7 @@ export const update: APIGatewayProxyHandler = async event => {
     }
 
     const record = await updateRecord(
-      parseInt(event.pathParameters['id'], 10),
+      parseInt(event.pathParameters['identifier'], 10),
       event.body,
       user.id,
       db,

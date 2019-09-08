@@ -118,12 +118,7 @@ describe('Retrieve record', () => {
     }
   })
   it(`should be able to retrieve record`, async () => {
-    const actual = await retrieve(
-      ({
-        pathParameters: { page_id: 1 },
-      } as unknown) as APIGatewayProxyEvent,
-      db,
-    )
+    const actual = await retrieve('slugger', db)
     expect(actual).toEqual(record)
   })
 })

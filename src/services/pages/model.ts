@@ -130,11 +130,8 @@ export const list = async (
   return records
 }
 
-export const retrieve = async (
-  event: APIGatewayProxyEvent,
-  db: massive.Database,
-) => {
-  const record = await db.pages.findDoc(event.pathParameters)
+export const retrieve = async (slug: string, db: massive.Database) => {
+  const record = await db.pages.findDoc({ slug })
 
   return record
 }
