@@ -66,3 +66,47 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
           path: pages
+  retrieve:
+    handler: handler.retrieve
+    environment:
+      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
+    events:
+      - http:
+          method: get
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          path: pages/{slug}
+          request:
+            parameters:
+              paths:
+                slug: true
+  update:
+    handler: handler.update
+    environment:
+      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
+    events:
+      - http:
+          method: put
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          path: pages/{id}
+          request:
+            parameters:
+              paths:
+                id: true

@@ -1,4 +1,4 @@
-import { create, list, retrieve } from '../handler'
+import { create, list, retrieve, update } from '../handler'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import { hash } from '../hasher'
 
@@ -159,11 +159,121 @@ describe('Records handler: retrieve', () => {
     const spyCallback = jest.fn()
     const context: Context = {} as any
     const actual = await retrieve(
-      mockEvent() as APIGatewayProxyEvent,
+      mockEvent({}, {}) as APIGatewayProxyEvent,
       context,
       spyCallback,
     )
     expect(actual).toHaveProperty('statusCode', 200)
+  })
+
+  it('should retrieve record with auth user if kasl-key is valid', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await retrieve(
+      mockEvent({}, undefined, { slug: 'not-found' }) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 200)
+  })
+
+  it('should respond with forbidden if kasl-key is invalid', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await retrieve(
+      mockEvent({}, { 'kasl-key': 'xxx' }) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 403)
+  })
+})
+
+const pathParameters = { id: 1 }
+describe('Records handler: update', () => {
+  it('should update record', async () => {
+    const spyCallback = jest.fn()
+    const actual = await update(
+      mockEvent(
+        {
+          title: 'A Test',
+          contents: '# Testing',
+        },
+        undefined,
+        pathParameters,
+        'POST',
+      ) as APIGatewayProxyEvent,
+      {} as any,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 200)
+  })
+
+  it('should result in an error if auth key not present', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await update(
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        {},
+      ) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 403)
+  })
+
+  it('should result in an error if no valid auth key', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await update(
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        { 'kasl-key': 'xxx' },
+      ) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 403)
+  })
+
+  it('should result in an error if no data in request', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await update(
+      mockEvent(undefined, { 'kasl-key': 'xxx' }) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 400)
+  })
+
+  it('should result in an error if no data in request', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await update(
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        { 'kasl-key': 'more errors' },
+      ) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 400)
+  })
+
+  it('should default to error 500 on system error', async () => {
+    const spyCallback = jest.fn()
+    const context: Context = {} as any
+    const actual = await update(
+      mockEvent(
+        { title: 'A Test', contents: '# Testing' },
+        { 'kasl-key': 'error' },
+      ) as APIGatewayProxyEvent,
+      context,
+      spyCallback,
+    )
+    expect(actual).toHaveProperty('statusCode', 500)
   })
 })
 
@@ -196,8 +306,13 @@ jest.mock('massive', () =>
         if (filter.id === 'error') {
           throw 'Generic error'
         }
+        console.log('filter', filter)
+        if (filter.slug === 'not-found') {
+          return []
+        }
         return [filter]
       }),
+      updateDoc: jest.fn(filter => filter),
     },
     users: {
       findDoc: jest.fn(filter => {
@@ -230,11 +345,12 @@ const getBodyString = JSON.stringify
 const mockEvent = (
   data?: {},
   headers: {} = { 'kasl-key': kasl_key },
+  pathParameters: {} = {},
   httpMethod: string = 'GET',
 ) => ({
   body: getBodyString(data),
   headers,
   httpMethod,
-  pathParameters: {},
+  pathParameters,
   multiValueHeaders: {},
 })

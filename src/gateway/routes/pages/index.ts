@@ -4,7 +4,7 @@ import {
   KastleRouter,
   KastleRoutes,
 } from '@g-six/kastle-router'
-import { create, list, retrieve } from 'services/pages/handler'
+import { create, list, retrieve, update } from 'services/pages/handler'
 
 const baseUrl = '/pages'
 
@@ -16,13 +16,18 @@ const routes: KastleRoutes = {
   },
   retrieve: {
     method: MethodTypes.Get,
-    route: '/:page_id',
+    route: '/:slug',
     middlewares: [lambdaMiddleware(retrieve)],
   },
   list: {
     method: MethodTypes.Get,
     route: '/',
     middlewares: [lambdaMiddleware(list)],
+  },
+  update: {
+    method: MethodTypes.Put,
+    route: '/:id',
+    middlewares: [lambdaMiddleware(update)],
   },
 }
 

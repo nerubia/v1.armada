@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { Database } from 'massive'
 import { hash } from '../hasher'
-import { create, list, retrieve } from '../model'
+import { create, list, retrieve, update } from '../model'
 
 jest.mock('../config', () => {
   return jest.fn().mockImplementation(() => [])
@@ -29,6 +29,7 @@ const db = ({
       record = params
       return record
     }),
+    updateDoc: jest.fn(params => params),
   },
   users: {
     findDoc: jest.fn(() => [
@@ -124,5 +125,32 @@ describe('Retrieve record', () => {
       db,
     )
     expect(actual).toEqual(record)
+  })
+})
+
+describe('Update record', () => {
+  it(`should return error if schema requirements was unmet`, async () => {
+    try {
+      await update(1, '{"title": ""}', user.id, db)
+    } catch (e) {
+      expect(e).toHaveProperty('status', 400)
+    }
+  })
+
+  it(`should be able to update record`, async () => {
+    await update(1, body, user.id, db)
+    expect(db.pages.updateDoc).toHaveBeenCalled()
+  })
+
+  it(`should be able to update record's title only`, async () => {
+    await update(1, '{"title": "another test"}', user.id, db)
+
+    expect(db.pages.updateDoc).toHaveBeenCalled()
+  })
+
+  it(`should be able to update record's contents only`, async () => {
+    await update(1, '{"contents": "another test"}', user.id, db)
+
+    expect(db.pages.updateDoc).toHaveBeenCalled()
   })
 })

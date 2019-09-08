@@ -107,8 +107,8 @@ export const list = async (
   db: massive.Database,
 ) => {
   const query = event.queryStringParameters
-  const filters = {}
   const options = {}
+  let filters = {}
   options['limit'] = 10
   options['order'] = [
     {
@@ -119,9 +119,7 @@ export const list = async (
   ]
 
   if (query) {
-    if (query.contents) {
-      filters['contents'] = query.contents
-    }
+    filters = pick(query, ['title', 'slug'])
 
     if (query.limit) {
       options['limit'] = query.limit
@@ -137,6 +135,46 @@ export const retrieve = async (
   db: massive.Database,
 ) => {
   const record = await db.pages.findDoc(event.pathParameters)
+
+  return record
+}
+
+export const update = async (
+  id: number,
+  body: string,
+  updated_by: number,
+  db: massive.Database,
+) => {
+  const { contents, title } = JSON.parse(body)
+
+  const validation_errors = validateInput({ contents, title })
+  if (validation_errors) {
+    if (contents === undefined) {
+      delete validation_errors.errors.contents
+    }
+    if (title === undefined) {
+      delete validation_errors.errors.title
+    }
+    if (validation_errors.errors.title || validation_errors.errors.contents) {
+      throw {
+        errors: validation_errors.errors,
+        message: HttpStatus.E_400,
+        status: 400,
+      }
+    }
+  }
+
+  const [date, time] = new Date().toISOString().split('T')
+  const updated_at = `${date} ${time.substring(0, 8)}`
+
+  const rec = {
+    contents,
+    title,
+    updated_by,
+    updated_at,
+  }
+
+  const record = await db.pages.updateDoc(id, rec)
 
   return record
 }
