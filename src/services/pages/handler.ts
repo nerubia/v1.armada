@@ -165,8 +165,11 @@ export const retrieve = async (event: APIGatewayProxyEvent) => {
 
   let user
   const db = await connectDb()
-  const [category, slug] = event.pathParameters['identifier'].split('/', 2)
-  const [record] = await retrieveRecord(slug, category, db)
+
+  const record = await retrieveRecord(
+    parseInt(event.pathParameters['identifier'], 10),
+    db,
+  )
 
   if (event.headers['kasl-key']) {
     user = await verifyUser(event.headers['kasl-key'], db)
@@ -181,8 +184,10 @@ export const retrieve = async (event: APIGatewayProxyEvent) => {
 
   await closeDb(db)
 
-  response.statusCode = 200
+  response.body = '{}'
+  response.statusCode = 204
   if (record) {
+    response.statusCode = 200
     response.body = JSON.stringify(
       {
         data: {

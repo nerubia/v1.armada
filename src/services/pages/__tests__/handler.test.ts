@@ -199,9 +199,10 @@ describe('Records handler: retrieve', () => {
     const actual = await retrieve(mockEvent(
       {},
       {},
-      { identifier: 'not-found' },
+      { identifier: '404' },
     ) as APIGatewayProxyEvent)
-    expect(actual).toHaveProperty('body', '')
+
+    expect(actual.statusCode).toEqual(204)
   })
 
   it('should return error if no parameters passed', async () => {
@@ -323,13 +324,17 @@ jest.mock('massive', () =>
         if (filter.contents === 'error') {
           throw 'Generic error'
         }
-        if (filter.id === 'error') {
+        if (filter === 'error') {
           throw 'Generic error'
         }
-
-        if (!filter.slug) {
-          return []
+        if (filter === 404) {
+          return undefined
         }
+
+        if (filter === 69) {
+          return { id: filter }
+        }
+
         return [filter]
       }),
       updateDoc: jest.fn(filter => {

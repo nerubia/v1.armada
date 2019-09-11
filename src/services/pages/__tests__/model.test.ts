@@ -124,7 +124,7 @@ describe('Retrieve record', () => {
     }
   })
   it(`should be able to retrieve record`, async () => {
-    const actual = await retrieve('slugger', PageCategory.CASE_STUDIES, db)
+    const actual = await retrieve(69, db)
     expect(actual).toEqual(record)
   })
 })

@@ -130,14 +130,10 @@ export const list = async (
   return records
 }
 
-export const retrieve = async (
-  slug: string,
-  category: string,
-  db: massive.Database,
-) => {
-  const record = await db.pages.findDoc({ category, slug })
+export const retrieve = async (id: number, db: massive.Database) => {
+  const record = await db.pages.findDoc(id)
 
-  return record
+  return record || undefined
 }
 
 export const update = async (
