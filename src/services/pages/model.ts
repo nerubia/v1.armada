@@ -73,9 +73,9 @@ export const create = async (
       status: 400,
     }
   }
-  const { contents, title } = JSON.parse(event.body)
+  const { category, contents, order, title } = JSON.parse(event.body)
 
-  const validation_errors = validateInput({ contents, title })
+  const validation_errors = validateInput({ category, contents, order, title })
   if (validation_errors) {
     throw {
       errors: validation_errors.errors,
@@ -130,8 +130,12 @@ export const list = async (
   return records
 }
 
-export const retrieve = async (slug: string, db: massive.Database) => {
-  const record = await db.pages.findDoc({ slug })
+export const retrieve = async (
+  slug: string,
+  category: string,
+  db: massive.Database,
+) => {
+  const record = await db.pages.findDoc({ category, slug })
 
   return record
 }
@@ -142,9 +146,9 @@ export const update = async (
   updated_by: number,
   db: massive.Database,
 ) => {
-  const { contents, title } = JSON.parse(body)
+  const { category, contents, title } = JSON.parse(body)
 
-  const validation_errors = validateInput({ contents, title })
+  const validation_errors = validateInput({ category, contents, title })
   if (validation_errors) {
     if (contents === undefined) {
       delete validation_errors.errors.contents

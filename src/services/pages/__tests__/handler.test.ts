@@ -1,6 +1,7 @@
 import { create, list, retrieve, update, record } from '../handler'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import { hash } from '../hasher'
+import { PageCategory } from '../types'
 
 process.env.APP_SECRET = 'testing'
 
@@ -15,6 +16,7 @@ describe('Records handler: create', () => {
     const actual = await create(
       mockEvent({
         title: 'A Test',
+        category: PageCategory.CASE_STUDIES,
         contents: '# Testing',
       }) as APIGatewayProxyEvent,
       context,
@@ -157,7 +159,11 @@ describe('Records handler: list', () => {
 describe('Single record handler', () => {
   it('should retrieve record', async () => {
     const actual = await record(
-      mockEvent({}, {}, { identifier: 'some-test' }) as APIGatewayProxyEvent,
+      mockEvent(
+        {},
+        {},
+        { identifier: 'case-studies/some-test' },
+      ) as APIGatewayProxyEvent,
       {} as Context,
       () => {},
     )
@@ -179,7 +185,7 @@ describe('Single record handler', () => {
   })
 })
 
-const pathParameters = { identifier: '1' }
+const pathParameters = { identifier: 'category/slug' }
 describe('Records handler: retrieve', () => {
   it('should retrieve record', async () => {
     const actual = await retrieve(mockEvent(
@@ -204,9 +210,11 @@ describe('Records handler: retrieve', () => {
   })
 
   it('should retrieve record with auth user if kasl-key is valid', async () => {
-    const actual = await retrieve(mockEvent({}, undefined, {
-      slug: 'not-found',
-    }) as APIGatewayProxyEvent)
+    const actual = await retrieve(mockEvent(
+      {},
+      undefined,
+      pathParameters,
+    ) as APIGatewayProxyEvent)
     expect(actual).toHaveProperty('statusCode', 200)
   })
 
@@ -318,7 +326,7 @@ jest.mock('massive', () =>
           throw 'Generic error'
         }
 
-        if (filter.slug === 'not-found') {
+        if (!filter.slug) {
           return []
         }
         return [filter]
@@ -330,8 +338,8 @@ jest.mock('massive', () =>
         if (filter.id === 'error') {
           throw 'Generic error'
         }
-        console.log('filter', filter)
-        if (filter.slug === 'not-found') {
+
+        if (!filter.slug) {
           return []
         }
         return [filter]

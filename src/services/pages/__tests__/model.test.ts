@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda'
 import { Database } from 'massive'
 import { hash } from '../hasher'
 import { create, list, retrieve, update } from '../model'
+import { PageCategory } from '../types'
 
 jest.mock('../config', () => {
   return jest.fn().mockImplementation(() => [])
@@ -13,7 +14,12 @@ process.env.PORT = '5432'
 const email = 'user@test.me'
 const logged_in_at = new Date().toISOString()
 const kasl_key = hash(`${email}${logged_in_at}`)
-const body = `{ "contents": "just a test", "title": "A Test" }`
+const body = JSON.stringify({
+  title: 'A test',
+  contents: 'just a test',
+  category: PageCategory.CASE_STUDIES,
+  order: 0,
+})
 
 let record = {}
 
@@ -118,7 +124,7 @@ describe('Retrieve record', () => {
     }
   })
   it(`should be able to retrieve record`, async () => {
-    const actual = await retrieve('slugger', db)
+    const actual = await retrieve('slugger', PageCategory.CASE_STUDIES, db)
     expect(actual).toEqual(record)
   })
 })

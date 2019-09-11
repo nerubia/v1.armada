@@ -1,6 +1,11 @@
 import Joi from '@hapi/joi'
 
 export const schema = Joi.object().keys({
-  title: Joi.string().required(),
   contents: Joi.string().required(),
+  category: Joi.string().required(),
+  order: Joi.number(),
+  slug: Joi.string().min(2),
+  title: Joi.string()
+    .required()
+    .min(2),
 })

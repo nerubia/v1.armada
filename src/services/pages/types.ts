@@ -1,3 +1,10 @@
+export enum PageCategory {
+  CASE_STUDIES = 'case-studies',
+  CAREERS = 'careers',
+  CUSTOMERS = 'customers',
+  PARTNERS = 'partners',
+}
+
 export interface Response {
   body: string
   headers: {
@@ -15,5 +22,9 @@ export interface ValidationError {
 
 export interface Page {
   title: string
+  category: PageCategory
   contents: string
+  parent_id?: number
+  order?: number
+  slug?: string
 }

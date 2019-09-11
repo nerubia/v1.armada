@@ -165,7 +165,8 @@ export const retrieve = async (event: APIGatewayProxyEvent) => {
 
   let user
   const db = await connectDb()
-  const [record] = await retrieveRecord(event.pathParameters['identifier'], db)
+  const [category, slug] = event.pathParameters['identifier'].split('/', 2)
+  const [record] = await retrieveRecord(slug, category, db)
 
   if (event.headers['kasl-key']) {
     user = await verifyUser(event.headers['kasl-key'], db)
