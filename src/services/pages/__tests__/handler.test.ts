@@ -232,6 +232,7 @@ describe('Records handler: update', () => {
   it('should update record', async () => {
     const actual = await update(mockEvent(
       {
+        category: 'case-studies',
         title: 'A Test',
         contents: '# Testing',
       },
@@ -244,7 +245,7 @@ describe('Records handler: update', () => {
 
   it('should result in an error if auth key not present', async () => {
     const actual = await update(mockEvent(
-      { title: 'A Test', contents: '# Testing' },
+      { category: 'case-studies', title: 'A Test', contents: '# Testing' },
       {},
       pathParameters,
     ) as APIGatewayProxyEvent)
@@ -253,7 +254,7 @@ describe('Records handler: update', () => {
 
   it('should result in an error if no valid auth key', async () => {
     const actual = await update(mockEvent(
-      { title: 'A Test', contents: '# Testing' },
+      { category: 'case-studies', title: 'A Test', contents: '# Testing' },
       { 'kasl-key': 'xxx' },
       pathParameters,
     ) as APIGatewayProxyEvent)
@@ -280,7 +281,7 @@ describe('Records handler: update', () => {
 
   it('should result in an error if no id passed', async () => {
     const actual = await update(mockEvent(
-      { title: 'A Test', contents: '# Testing' },
+      { category: 'case-studies', title: 'A Test', contents: '# Testing' },
       { 'kasl-key': 'more errors' },
     ) as APIGatewayProxyEvent)
     expect(actual).toHaveProperty('statusCode', 400)

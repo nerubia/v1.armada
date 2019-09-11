@@ -154,4 +154,10 @@ describe('Update record', () => {
 
     expect(db.pages.updateDoc).toHaveBeenCalled()
   })
+
+  it(`should be able to update record's category only`, async () => {
+    await update(1, '{"category": "case-studies"}', user.id, db)
+
+    expect(db.pages.updateDoc).toHaveBeenCalled()
+  })
 })

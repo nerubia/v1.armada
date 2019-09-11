@@ -146,19 +146,27 @@ export const update = async (
   updated_by: number,
   db: massive.Database,
 ) => {
-  const { category, contents, title } = JSON.parse(body)
+  const input = pick(JSON.parse(body), ['category', 'contents', 'title'])
+  const validation_errors = validateInput(input)
 
-  const validation_errors = validateInput({ category, contents, title })
   if (validation_errors) {
-    if (contents === undefined) {
+    if (input.category === undefined) {
+      delete validation_errors.errors.category
+    }
+    if (input.contents === undefined) {
       delete validation_errors.errors.contents
     }
-    if (title === undefined) {
+    if (input.title === undefined) {
       delete validation_errors.errors.title
     }
-    if (validation_errors.errors.title || validation_errors.errors.contents) {
+    const errors = pick(validation_errors.errors, [
+      'category',
+      'contents',
+      'title',
+    ])
+    if (errors.title || errors.contents || errors.category) {
       throw {
-        errors: validation_errors.errors,
+        errors,
         message: HttpStatus.E_400,
         status: 400,
       }
@@ -169,8 +177,7 @@ export const update = async (
   const updated_at = `${date} ${time.substring(0, 8)}`
 
   const rec = {
-    contents,
-    title,
+    ...input,
     updated_by,
     updated_at,
   }

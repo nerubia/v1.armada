@@ -16,7 +16,7 @@ const routes: KastleRoutes = {
   },
   retrieve: {
     method: MethodTypes.Get,
-    route: '/:slug',
+    route: '/:identifier',
     middlewares: [lambdaMiddleware(retrieve)],
   },
   list: {
@@ -26,7 +26,7 @@ const routes: KastleRoutes = {
   },
   update: {
     method: MethodTypes.Put,
-    route: '/:id',
+    route: '/:identifier',
     middlewares: [lambdaMiddleware(update)],
   },
 }

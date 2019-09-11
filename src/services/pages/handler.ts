@@ -251,6 +251,8 @@ export const update = async (event: APIGatewayProxyEvent) => {
       null,
       2,
     )
+
+    await closeDb(db)
   } catch (e) {
     if (e.status) response.statusCode = e.status
     const errors = {}
