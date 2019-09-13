@@ -37,9 +37,9 @@ export const create: APIGatewayProxyHandler = async event => {
   }
 
   let user
+  const db = await connectDb()
 
   try {
-    const db = await connectDb()
     if (event.headers['kasl-key']) {
       user = await verifyUser(event.headers['kasl-key'], db)
     }
