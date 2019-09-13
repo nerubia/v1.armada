@@ -91,6 +91,7 @@ export const create: APIGatewayProxyHandler = async event => {
     )
   }
 
+  await closeDb(db)
   return response
 }
 
@@ -116,6 +117,7 @@ export const list: APIGatewayProxyHandler = async event => {
           2,
         )
         response.statusCode = 403
+        await closeDb(db)
         return response
       }
 
