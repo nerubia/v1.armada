@@ -119,7 +119,7 @@ export const list = async (
   ]
 
   if (query) {
-    filters = pick(query, ['title', 'slug'])
+    filters = pick(query, ['title', 'slug', 'category'])
 
     if (query.limit) {
       options['limit'] = query.limit
