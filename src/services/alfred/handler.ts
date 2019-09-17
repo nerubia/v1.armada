@@ -15,7 +15,7 @@ const headers = {
 
 export const oauth: APIGatewayProxyHandler = async event => {
   const response: Response = {
-    body: '',
+    body: '{}',
     headers,
     statusCode: 500,
   }
@@ -37,6 +37,13 @@ export const oauth: APIGatewayProxyHandler = async event => {
     ] = `https://idearobin.com/alfred?incoming=${escape(
       record.incoming_webhook.url,
     )}`
+
+    // This is a workaround for now.
+    // APIGatewayProxyHandler requires return but
+    // Istanbul can't reach this code after the header
+    // redirect code above
+    /* istanbul ignore next */
+    return response
   } catch (e) {
     response.body = JSON.stringify(
       {

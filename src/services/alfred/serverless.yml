@@ -44,4 +44,3 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
           path: alfred
-
