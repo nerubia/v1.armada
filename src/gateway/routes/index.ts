@@ -2,6 +2,7 @@ import * as Koa from 'koa'
 import Router = require('koa-router')
 import { KastleRouter, KastleRoute, MethodTypes } from '@g-six/kastle-router'
 import { Route as Sitrep } from './general'
+import { Route as Alfred } from './alfred'
 import { Route as Pages } from './pages'
 
 export const loadRouteItem = (router: Router) => {
@@ -41,5 +42,6 @@ export const loadRoutes = (app: Koa) => {
 
 export const loadServices = (app: Koa) => {
   loadRoutes(app)(Sitrep)
+  loadRoutes(app)(Alfred)
   loadRoutes(app)(Pages)
 }
