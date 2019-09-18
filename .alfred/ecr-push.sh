@@ -37,6 +37,7 @@ curl -X POST -s $SLACK_URL -d '{
 }'
 
 $(aws ecr get-login --no-include-email --region ap-southeast-1)
-docker tag ${GIT_REPO_NAME}-${JOB_BASE_NAME} ${ECR_URI}:${JOB_BASE_NAME}.${COMMIT_SHA}
-docker push ${ECR_URI}:${JOB_BASE_NAME}.${COMMIT_SHA} &> /dev/null &
-echo 'Pushed '${ECR_URI}':'${JOB_BASE_NAME}'.'${COMMIT_SHA}
+docker tag ${GIT_REPO_NAME}-${JOB_BASE_NAME} ${ECR_URI}':'${JOB_BASE_NAME}'.'${COMMIT_SHA}
+ECR_FULL_IMAGE_TAG=$(echo $ECR_URI':'$JOB_BASE_NAME'.'$COMMIT_SHA)
+docker push $ECR_FULL_IMAGE_TAG
+echo 'Pushed '$ECR_FULL_IMAGE_TAG

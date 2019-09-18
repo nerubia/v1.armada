@@ -31,15 +31,14 @@ ssh -i .alfred/access-key \
   ${REMOTE_USER}@${REMOTE_ADDR} \
   """$(aws ecr get-login --no-include-email --region ap-southeast-1) &> /dev/null
   docker pull ${ECR_URI}:${JOB_BASE_NAME}.${COMMIT_SHA}
-  docker image tag ${ECR_URI}:${JOB_BASE_NAME}.${COMMIT_SHA} ${GIT_REPO_NAME}-${JOB_BASE_NAME}
   docker rm -f ${GIT_REPO_NAME}-${JOB_BASE_NAME} &> /dev/null
   docker run --name ${GIT_REPO_NAME}-${JOB_BASE_NAME} \
     --env-file .env \
     --network ksl-network \
     -p 8888:8888 \
-    -it -d ${GIT_REPO_NAME}-${JOB_BASE_NAME}.${COMMIT_SHA} &> /dev/null
+    -it -d ${ECR_URI}:${JOB_BASE_NAME}.${COMMIT_SHA} &> /dev/null
   docker ps
-  """ >> .alfred/restart-log.log &
+  """ >> .alfred/restart-log.log
 REMOTE_LOG=$(sed ':a;N;$!ba;s/\n/\\\\n/g' .alfred/restart-log.log)
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
