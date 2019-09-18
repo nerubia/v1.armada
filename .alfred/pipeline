@@ -1,0 +1,68 @@
+  
+properties(
+  [
+    buildDiscarder(
+      logRotator(
+        numToKeepStr: '1'
+      )
+    )
+  ]
+)
+
+node {
+  stage ('Checkout') {
+    checkout scm
+    GIT_REPO_NAME = sh (
+      script: "basename `git config --get remote.origin.url` | sed 's/.git//'",
+      returnStdout: true
+    ).trim()
+    COMMIT_ID = sh (
+      script: "git rev-parse HEAD",
+      returnStdout: true
+    ).trim()
+    COMMIT_SHORT = sh (
+      script: "git rev-parse --short HEAD",
+      returnStdout: true
+    ).trim()
+    ECR_URI = sh (
+      script: "aws ecr describe-repositories --query repositories[0].repositoryUri --repository armada-airside  | tr -d '\"'",
+      returnStdout: true
+    ).trim()
+    env_file_id = sh (
+      script: "echo 'env_file_'$JOB_BASE_NAME",
+      returnStdout: true
+    ).trim()
+    withCredentials([file(credentialsId: env_file_id, variable: 'ENV_FILE'), file(credentialsId: 'AIRSIDE_PEM', variable: 'AIRSIDE_PEM')]) {
+      sh "cat ${AIRSIDE_PEM} > .alfred/access-key"
+      sh "cat ${ENV_FILE} > .env"
+    }
+
+    sh """
+      echo $GIT_REPO_NAME > .alfred/git-repo-name.txt
+      echo $COMMIT_ID > .alfred/git-commit-id.txt
+      echo $COMMIT_SHORT > .alfred/git-commit-short.txt
+      echo $ECR_URI > .alfred/ecr-uri.txt
+      echo '<'$BUILD_URL'|Build #'$BUILD_NUMBER'>' > .alfred/build-link.txt
+    """
+  
+    sh '$(sh .alfred/checkout.sh)'
+  }
+  stage ('Testing') {
+    sh (
+      script: 'sh .alfred/testing.sh',
+      returnStdout: false
+    )
+  }
+  stage ('Push image') {
+    sh (
+      script: 'sh .alfred/ecr-push.sh',
+      returnStdout: false
+    )
+  }
+  stage ('Restart containers') {
+    sh (
+      script: 'sh .alfred/restart.sh',
+      returnStdout: true
+    )
+  }
+}
