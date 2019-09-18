@@ -8,14 +8,9 @@ plugins:
 
 provider:
   name: aws
-  profile: codefantry
+  profile: armada
   runtime: nodejs10.x
   region: ap-southeast-1
-  # apiGateway:
-  #   restApiId:
-  #     'Fn::ImportValue': ${self:custom.stage}-ApiGatewayRestApiId
-  #   restApiRootResourceId:
-  #     'Fn::ImportValue': ${self:custom.stage}-ApiGatewayRestApiRootResourceId
 
 custom:
   stage: ${opt:stage, self:provider.stage}

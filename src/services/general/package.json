@@ -12,8 +12,6 @@
   },
   "dependencies": {
     "aws-sdk": "^2.524.0",
-    "serverless-plugin-typescript": "^1.1.9",
-    "serverless-pseudo-parameters": "^2.4.0",
     "source-map-support": "^0.5.13"
   },
   "devDependencies": {
@@ -21,6 +19,8 @@
     "@types/node": "^12.7.5",
     "serverless": "^1.52.0",
     "serverless-offline": "^5.11.0",
+    "serverless-plugin-typescript": "^1.1.9",
+    "serverless-pseudo-parameters": "^2.4.0",
     "ts-loader": "^6.1.0",
     "typescript": "^3.6.3"
   },
