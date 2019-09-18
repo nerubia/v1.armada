@@ -24,6 +24,6 @@ describe('General:sitrep', () => {
     )
     const body = JSON.parse(actual['body'])
     expect(actual).toHaveProperty('statusCode', 200)
-    expect(body).toHaveProperty('fingerprint.version', '0')
+    expect(body).toHaveProperty('version', 'initial')
   })
 })

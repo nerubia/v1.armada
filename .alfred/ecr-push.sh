@@ -6,7 +6,7 @@ GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 
 BUILD_LINK="<'$BUILD_URL'|Build #'$BUILD_NUMBER'>"
 
-echo '{"stage": "'$JOB_BASE_NAME'","version": "'$COMMIT_SHA'"}' > src/services/general/version.json
+echo "export default version = '"$COMMIT_SHA"'" > src/services/general/version.ts
 
 docker rm -f ${GIT_REPO_NAME}-${JOB_BASE_NAME} &> /dev/null
 docker rmi ${GIT_REPO_NAME}-${JOB_BASE_NAME} &> /dev/null

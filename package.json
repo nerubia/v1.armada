@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "commit": "git-cz",
-    "l": "pretty-quick && eslint 'src/**/*.ts' --fix",
+    "l": "eslint 'src/**/*.ts' --fix",
     "s:0": "rimraf ./src/services/$NAME",
     "s:1": "serverless create --template-path template --path ./src/services/$NAME/. --name $NAME",
     "s:2": "cd ./src/services/$NAME && npm i",
@@ -57,7 +57,7 @@
     "commitlint": "^8.2.0",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.3.0",
-    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-prettier": "^3.1.1",
     "git-cz": "^3.2.1",
     "git-list-updated": "^1.2.1",
     "husky": "^3.0.5",
@@ -79,14 +79,13 @@
   "lint-staged": {
     "*.(j|t)s": [
       "eslint --fix",
-      "pretty-quick --fix",
       "git add"
     ]
   },
   "dependencies": {
     "@g-six/kastle-router": "^0.1.4",
     "@g-six/swiss-knife": "^0.1.4",
-    "@hapi/joi": "^16.0.1",
+    "@hapi/joi": "^16.1.1",
     "@koa/cors": "^3.0.0",
     "axios": "^0.19.0",
     "js-yaml": "^3.13.1",
