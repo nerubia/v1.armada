@@ -1,4 +1,11 @@
 #!/bin/bash
+export STAGE=dev
+case $BRANCH_NAME in
+  master)
+    export STAGE=live
+    ;;
+esac
+
 COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 ROOT_DIR=$(pwd)
@@ -30,8 +37,11 @@ curl -X POST -s $SLACK_URL -d '{
 }'
 
 cp .env src/services/general
-cd src/services/general
 echo "export default '"$COMMIT_SHA"'" > version.ts
+cd src/services/general
+
+echo "STAGE="$STAGE >> .env
+
 docker build -t ${GIT_REPO_NAME}-${JOB_BASE_NAME}-general .
 docker run --rm --env-file .env ${GIT_REPO_NAME}-${JOB_BASE_NAME}-general
 docker rmi ${GIT_REPO_NAME}-${JOB_BASE_NAME}-general

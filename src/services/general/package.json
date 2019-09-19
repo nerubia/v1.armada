@@ -5,7 +5,7 @@
   "main": "handler.js",
   "scripts": {
     "config": "serverless config credentials --provider aws --key $AWS_KEY --secret $AWS_SECRET --profile armada --overwrite",
-    "deploy": "serverless deploy",
+    "deploy": "serverless deploy --stage $STAGE",
     "remove": "serverless remove",
     "start": "serverless offline start",
     "test": "echo \"Error: no test specified\" && exit 1"
