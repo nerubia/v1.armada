@@ -8,7 +8,7 @@ plugins:
 
 provider:
   name: aws
-  profile: codefantry
+  profile: armada
   runtime: nodejs10.x
   region: ap-southeast-1
   iamRoleStatements:
@@ -46,6 +46,8 @@ functions:
           path: enter-post-path
   list:
     handler: handler.list
+    environment:
+      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
     events:
       - http:
           method: get
