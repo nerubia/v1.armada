@@ -59,6 +59,12 @@ node {
       returnStdout: false
     )
   }
+  stage ('Update services') {
+    sh (
+      script: 'sh .alfred/update-services.sh',
+      returnStdout: true
+    )
+  }
   stage ('Restart containers') {
     sh (
       script: 'sh .alfred/restart.sh',

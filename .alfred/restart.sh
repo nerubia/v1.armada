@@ -54,7 +54,7 @@ curl -X POST -s $SLACK_URL -d '{
       },
       "fields": [
         { "type": "mrkdwn", "text": "*Stage:* Restarted containers" },
-        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'|'$BUILD_NUMBER'>" },
+        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'/console|'$BUILD_NUMBER'>" },
         { "type": "mrkdwn", "text": "*Project:* '$GIT_REPO_NAME'" },
         { "type": "mrkdwn", "text": "*Branch:* '$JOB_BASE_NAME'" }
       ],
