@@ -35,6 +35,9 @@ cd $ROOT_DIR
 sh .alfred/services/auth.sh
 
 cd $ROOT_DIR
+sh .alfred/services/alfred.sh
+
+cd $ROOT_DIR
 
 # docker ps -a | grep -E Exited | awk -e '{print $1}' | xargs docker rm $GIT_REPO_NAME'-'$JOB_BASE_NAME
 # docker images | grep -E none | awk -e '{print $3}'| xargs docker rmi $GIT_REPO_NAME'-'$JOB_BASE_NAME

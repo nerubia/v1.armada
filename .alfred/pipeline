@@ -13,12 +13,6 @@ node {
   stage ('Checkout') {
     bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Checkout')
     checkout scm
-    env_file_id = 'env_file_integration'
-    
-    env_file_id = sh (
-      script: "if [ $JOB_BASE_NAME = master ]; then echo 'env_file_master'; else echo 'env_file_integration'; fi",
-      returnStdout: true
-    ).trim()
 
     GIT_REPO_NAME = sh (
       script: "basename `git config --get remote.origin.url` | sed 's/.git//'",
@@ -40,7 +34,6 @@ node {
 
     withCredentials([file(credentialsId: env_file_id, variable: 'ENV_FILE'), file(credentialsId: 'AIRSIDE_PEM', variable: 'AIRSIDE_PEM')]) {
       sh "cat ${AIRSIDE_PEM} > .alfred/access-key"
-      sh "cat ${ENV_FILE} > .env"
     }
 
     sh """
