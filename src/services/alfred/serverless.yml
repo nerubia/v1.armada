@@ -9,6 +9,8 @@ plugins:
 provider:
   name: aws
   environment:
+    AWS_ACCESS_KEY_ID: ${ssm:armada-access-key-id}
+    AWS_SECRET_ACCESS_KEY: ${ssm:armada-secret-access-key}
     APP_SECRET: ${ssm:app-secret-${self:custom.stage}}
     CLIENT_ID: ${ssm:client-id-${self:custom.stage}}
     CLIENT_SECRET: ${ssm:client-secret-${self:custom.stage}}
@@ -19,6 +21,9 @@ provider:
     PGPORT: ${ssm:dbport-${self:custom.stage}}
     PGHOST: ${ssm:dbhost-${self:custom.stage}}
     PGUSER: ${ssm:dbuser-${self:custom.stage}}
+    SLACK_CLIENT_ID: ${ssm:slack-client-id}
+    SLACK_CLIENT_SECRET: ${ssm:slack-client-secret}
+    SLACK_REDIRECT_URL: ${ssm:slack-redirect-url}
   runtime: nodejs10.x
   region: ap-southeast-1
   iamRoleStatements:

@@ -1,7 +1,9 @@
 import { HttpStatus } from '@g-six/kastle-router'
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import pick from 'lodash/pick'
+import getEnv from './config'
 import { access } from './model'
+import { list } from './models/server'
 
 import { Response } from './types'
 
@@ -31,12 +33,11 @@ export const oauth: APIGatewayProxyHandler = async event => {
 
   try {
     const record = await access(code)
+    const config = getEnv()
     response.statusCode = 302
-    response.headers[
-      'Location'
-    ] = `https://idearobin.com/alfred?incoming=${escape(
-      record.incoming_webhook.url,
-    )}`
+    response.headers['Location'] = `${decodeURI(
+      config['SLACK_REDIRECT_URL'],
+    )}?incoming=${escape(record.incoming_webhook.url)}`
 
     // This is a workaround for now.
     // APIGatewayProxyHandler requires return but
@@ -58,36 +59,43 @@ export const oauth: APIGatewayProxyHandler = async event => {
   return response
 }
 
-export const server_list: APIGatewayProxyHandler = async event => {
+export const listServers: APIGatewayProxyHandler = async () => {
   const response: Response = {
     body: '{}',
     headers,
     statusCode: 500,
   }
 
-  if (!event.queryStringParameters || !event.queryStringParameters['code']) {
-    const error = HttpStatus.E_403
-    response.body = JSON.stringify({ error }, null, 2)
-    response.statusCode = 403
-    return response
-  }
+  // if (!event.queryStringParameters || !event.queryStringParameters['code']) {
+  //   const error = HttpStatus.E_403
+  //   response.body = JSON.stringify({ error }, null, 2)
+  //   response.statusCode = 403
+  //   return response
+  // }
 
-  const code = event.queryStringParameters['code']
+  // const code = event.queryStringParameters['code']
 
   try {
-    const record = await access(code)
-    response.headers[
-      'Location'
-    ] = `https://idearobin.com/alfred?incoming=${escape(
-      record.incoming_webhook.url,
-    )}`
+    const records = await list()
+    // response.headers[
+    //   'Location'
+    // ] = `https://idearobin.com/alfred?incoming=${escape(
+    //   record.incoming_webhook.url,
+    // )}`
 
     // This is a workaround for now.
     // APIGatewayProxyHandler requires return but
     // Istanbul can't reach this code after the header
     // redirect code above
     /* istanbul ignore next */
-    return response
+    response.body = JSON.stringify(
+      {
+        records,
+      },
+      null,
+      2,
+    )
+    response.statusCode = 200
   } catch (e) {
     response.body = JSON.stringify(
       {

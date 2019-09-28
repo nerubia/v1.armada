@@ -7,11 +7,7 @@ export const exchangeCode = async (code: string): Promise<string> => {
   const {
     SLACK_CLIENT_ID: client_id,
     SLACK_CLIENT_SECRET: client_secret,
-  } = (await getEnv([
-    'SLACK_CLIENT_ID',
-    'SLACK_CLIENT_SECRET',
-    'SLACK_REDIRECT_URL',
-  ])) as SlackOAuthInterface
+  } = (await getEnv()) as SlackOAuthInterface
 
   const payload = stringify({
     client_id,

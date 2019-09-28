@@ -14,7 +14,7 @@
     "@g-six/kastle-router": "^0.1.4",
     "@g-six/swiss-knife": "^0.1.4",
     "@hapi/joi": "^15.1.1",
-    "aws-sdk": "^2.524.0",
+    "aws-sdk": "^2.538.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "massive": "^6.0.0",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",
+    "@types/aws-sdk": "^2.7.0",
     "@types/hapi__joi": "^15.0.4",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.138",
