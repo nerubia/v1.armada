@@ -1,13 +1,6 @@
 #!/bin/bash
-export STAGE=dev
-case $BRANCH_NAME in
-  master)
-    export STAGE=live
-    ;;
-esac
-
-export COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 export GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
+export COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 export ROOT_DIR=$(pwd)
 
 curl -X POST -s $SLACK_URL -d '{
@@ -37,6 +30,14 @@ curl -X POST -s $SLACK_URL -d '{
 }'
 
 sh .alfred/services/general.sh
+
+cd $ROOT_DIR
+sh .alfred/services/auth.sh
+
+cd $ROOT_DIR
+
+# docker ps -a | grep -E Exited | awk -e '{print $1}' | xargs docker rm $GIT_REPO_NAME'-'$JOB_BASE_NAME
+# docker images | grep -E none | awk -e '{print $3}'| xargs docker rmi $GIT_REPO_NAME'-'$JOB_BASE_NAME
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
   "text": "<'$BUILD_URL'/console|'$BUILD_NUMBER'>. *Updated all Lambdas!*"

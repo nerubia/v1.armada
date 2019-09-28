@@ -1,6 +1,4 @@
-import { APIGatewayProxyEvent } from 'aws-lambda'
 import { Database } from 'massive'
-import { hash } from '../hasher'
 import { create, list, retrieve, update } from '../model'
 
 jest.mock('../config', () => {
@@ -12,13 +10,6 @@ process.env.PORT = '5432'
 
 const email = 'user@test.me'
 const logged_in_at = new Date().toISOString()
-const kasl_key = hash(`${email}${logged_in_at}`)
-const body = JSON.stringify({
-  title: 'A test',
-  contents: 'just a test',
-  order: 0,
-})
-
 let record = {}
 
 const spyEnd = jest.fn()
@@ -28,7 +19,7 @@ const db = ({
     record = doc
     return doc
   }),
-  blogs: {
+  pages: {
     findDoc: jest.fn(params => {
       record = params
       return record
@@ -51,10 +42,10 @@ describe('Create record', () => {
   it(`should throw 403 if kasl-key not set`, async () => {
     try {
       await create(
-        ({
-          body,
-          headers: {},
-        } as unknown) as APIGatewayProxyEvent,
+        {
+          title: 'title',
+          contents: 'contents',
+        },
         user.id,
         db,
       )
@@ -65,10 +56,10 @@ describe('Create record', () => {
   it(`should return error if schema requirements was unmet`, async () => {
     try {
       await create(
-        ({
-          body: `{ "contents": "just a test" }`,
-          headers: { 'kasl-key': kasl_key },
-        } as unknown) as APIGatewayProxyEvent,
+        {
+          title: 'title',
+          contents: 'contents',
+        },
         user.id,
         db,
       )
@@ -78,10 +69,10 @@ describe('Create record', () => {
   })
   it(`should be able to create record`, async () => {
     const actual = await create(
-      ({
-        body,
-        headers: { 'kasl-key': kasl_key },
-      } as unknown) as APIGatewayProxyEvent,
+      {
+        title: 'title',
+        contents: 'contents',
+      },
       user.id,
       db,
     )
@@ -92,35 +83,16 @@ describe('Create record', () => {
 
 describe('List records', () => {
   it(`should be able to list records`, async () => {
-    const actual = await list(
-      ({
-        queryStringParameters: { contents: 'asd' },
-        headers: {},
-      } as unknown) as APIGatewayProxyEvent,
-      db,
-    )
+    const actual = await list({ contents: 'asd' }, db)
     expect(actual).toEqual(record)
   })
   it(`should be able to list paginated records`, async () => {
-    const actual = await list(
-      ({
-        queryStringParameters: { limit: 2 },
-        headers: {},
-      } as unknown) as APIGatewayProxyEvent,
-      db,
-    )
+    const actual = await list({ limit: 2 }, db)
     expect(actual).toEqual(record)
   })
 })
 
 describe('Retrieve record', () => {
-  it(`should throw 400 if parameters not set`, async () => {
-    try {
-      await create(({} as unknown) as APIGatewayProxyEvent, user.id, db)
-    } catch (e) {
-      expect(e).toHaveProperty('status', 400)
-    }
-  })
   it(`should be able to retrieve record`, async () => {
     const actual = await retrieve(69, db)
     expect(actual).toEqual(record)
@@ -130,26 +102,55 @@ describe('Retrieve record', () => {
 describe('Update record', () => {
   it(`should return error if schema requirements was unmet`, async () => {
     try {
-      await update(1, '{"title": ""}', user.id, db)
+      await update(
+        1,
+        {
+          title: '',
+        },
+        user.id,
+        db,
+      )
     } catch (e) {
       expect(e).toHaveProperty('status', 400)
     }
   })
 
   it(`should be able to update record`, async () => {
-    await update(1, body, user.id, db)
-    expect(db.blogs.updateDoc).toHaveBeenCalled()
+    await update(
+      1,
+      {
+        title: 'title',
+        contents: 'contents',
+      },
+      user.id,
+      db,
+    )
+    expect(db.pages.updateDoc).toHaveBeenCalled()
   })
 
   it(`should be able to update record's title only`, async () => {
-    await update(1, '{"title": "another test"}', user.id, db)
+    await update(
+      1,
+      {
+        title: 'title',
+      },
+      user.id,
+      db,
+    )
 
-    expect(db.blogs.updateDoc).toHaveBeenCalled()
+    expect(db.pages.updateDoc).toHaveBeenCalled()
   })
 
   it(`should be able to update record's contents only`, async () => {
-    await update(1, '{"contents": "another test"}', user.id, db)
+    await update(
+      1,
+      {
+        contents: 'contents',
+      },
+      user.id,
+      db,
+    )
 
-    expect(db.blogs.updateDoc).toHaveBeenCalled()
+    expect(db.pages.updateDoc).toHaveBeenCalled()
   })
 })

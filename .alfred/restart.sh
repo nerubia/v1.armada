@@ -30,6 +30,7 @@ ssh -i .alfred/access-key \
   -o StrictHostKeyChecking=no \
   ${REMOTE_USER}@${REMOTE_ADDR} \
   """$(aws ecr get-login --no-include-email --region ap-southeast-1) &> /dev/null
+  docker system prune -f
   docker pull ${ECR_URI}:${JOB_BASE_NAME}.${COMMIT_SHA}
   docker rm -f ${GIT_REPO_NAME}-${JOB_BASE_NAME} &> /dev/null
   docker run --name ${GIT_REPO_NAME}-${JOB_BASE_NAME} \
@@ -38,7 +39,11 @@ ssh -i .alfred/access-key \
     -p 8888:8888 \
     -it -d ${ECR_URI}:${JOB_BASE_NAME}.${COMMIT_SHA} &> /dev/null
   docker ps
+  docker system prune -f
   """ >> .alfred/restart-log.log
+
+docker images | grep -E $GIT_REPO_NAME'-'$JOB_BASE_NAME | awk -e '{print $3}'| xargs docker rmi -f
+
 REMOTE_LOG=$(sed ':a;N;$!ba;s/\n/\\\\n/g' .alfred/restart-log.log)
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
