@@ -8,7 +8,17 @@ plugins:
 
 provider:
   name: aws
-  profile: codefantry
+  environment:
+    APP_SECRET: ${ssm:app-secret-${self:custom.stage}}
+    CLIENT_ID: ${ssm:client-id-${self:custom.stage}}
+    CLIENT_SECRET: ${ssm:client-secret-${self:custom.stage}}
+    NODE_ENV: ${self:custom.stage}
+    NOTIFICATIONS_URI: ${ssm:notifications-uri}
+    PGDATABASE: ${ssm:dbname-${self:custom.stage}}
+    PGPASSWORD: ${ssm:dbpass-${self:custom.stage}}
+    PGPORT: ${ssm:dbport-${self:custom.stage}}
+    PGHOST: ${ssm:dbhost-${self:custom.stage}}
+    PGUSER: ${ssm:dbuser-${self:custom.stage}}
   runtime: nodejs10.x
   region: ap-southeast-1
   iamRoleStatements:

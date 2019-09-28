@@ -1,20 +1,20 @@
-export enum HttpStatus {
-  O_200 = 'success.ok',
-  O_201 = 'success.created',
-  O_202 = 'success.accepted',
-  O_204 = 'success.no-content',
-  E_400 = 'error-client.bad-request',
-  E_401 = 'error-client.unnauthorized',
-  E_402 = 'error-client.payment-required',
-  E_403 = 'error-client.forbidden',
-  E_404 = 'error-client.not-found',
-  E_405 = 'error-client.method-not-allowed',
-  E_413 = 'error-client.payload-too-large',
-  E_500 = 'error-server.internal-server-error',
-  E_501 = 'error-server.not-implemented',
-  E_502 = 'error-server.bad-gateway',
-  E_503 = 'error-server.service-unavailable',
-  E_504 = 'error-server.gateway-timeout',
+export interface AuthHeaders {
+  'client-id': string
+  'client-secret': string
+}
+
+export interface Params {
+  email: string
+  password: string
+}
+
+export interface User {
+  id?: number
+  email: string
+  password_hash: string
+  logged_in_at?: string
+  created_at: string
+  updated_at?: string
 }
 
 export interface Results {

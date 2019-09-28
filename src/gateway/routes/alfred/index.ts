@@ -4,7 +4,7 @@ import {
   KastleRouter,
   KastleRoutes,
 } from '@g-six/kastle-router'
-import { oauth } from 'services/alfred/handler'
+import { oauth, server_list } from 'services/alfred/handler'
 
 const baseUrl = '/alfred'
 
@@ -13,6 +13,11 @@ const routes: KastleRoutes = {
     method: MethodTypes.Get,
     route: '/',
     middlewares: [lambdaMiddleware(oauth)],
+  },
+  server_list: {
+    method: MethodTypes.Get,
+    route: '/',
+    middlewares: [lambdaMiddleware(server_list)],
   },
 }
 

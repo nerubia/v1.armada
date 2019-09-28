@@ -2,34 +2,48 @@ service:
   name: auth
 
 plugins:
-  - serverless-offline
   - serverless-plugin-typescript
   - serverless-pseudo-parameters
 
 provider:
   name: aws
-  profile: codefantry
+  environment:
+    APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
+    CLIENT_ID: ${ssm:client_id_${self:custom.stage}}
+    CLIENT_SECRET: ${ssm:client_secret_${self:custom.stage}}
+    NODE_ENV: ${self:custom.stage}
+    NOTIFICATIONS_URI: ${ssm:notifications_uri}
+    PGDATABASE: ${ssm:dbname_${self:custom.stage}}
+    PGPASSWORD: ${ssm:dbpass_${self:custom.stage}}
+    PGPORT: ${ssm:dbport_${self:custom.stage}}
+    PGHOST: ${ssm:dbhost_${self:custom.stage}}
+    PGUSER: ${ssm:dbuser_${self:custom.stage}}
   runtime: nodejs10.x
   region: ap-southeast-1
   iamRoleStatements:
-    - Effect: 'Allow'
+    - Effect: "Allow"
       Action:
-        - 'ssm:GetParameters'
-      Resource: 'arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*'
+        - "ssm:GetParameters"
+      Resource: "arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*"
   apiGateway:
     restApiId:
-      'Fn::ImportValue': ${self:custom.stage}-ApiGatewayRestApiId
+      "Fn::ImportValue": ${self:custom.stage}-ApiGatewayRestApiId
     restApiRootResourceId:
-      'Fn::ImportValue': ${self:custom.stage}-ApiGatewayRestApiRootResourceId
+      "Fn::ImportValue": ${self:custom.stage}-ApiGatewayRestApiRootResourceId
 
 custom:
   stage: ${opt:stage, self:provider.stage}
 
 functions:
+  index:
+    handler: handler.index
+    events:
+      - http:
+          method: get
+          cors: true
+          path: auth
   create:
     handler: handler.create
-    environment:
-      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
     events:
       - http:
           method: post
@@ -37,8 +51,6 @@ functions:
           path: auth/sign-up
   login:
     handler: handler.login
-    environment:
-      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
     events:
       - http:
           method: post

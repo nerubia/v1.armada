@@ -57,3 +57,47 @@ export const oauth: APIGatewayProxyHandler = async event => {
 
   return response
 }
+
+export const server_list: APIGatewayProxyHandler = async event => {
+  const response: Response = {
+    body: '{}',
+    headers,
+    statusCode: 500,
+  }
+
+  if (!event.queryStringParameters || !event.queryStringParameters['code']) {
+    const error = HttpStatus.E_403
+    response.body = JSON.stringify({ error }, null, 2)
+    response.statusCode = 403
+    return response
+  }
+
+  const code = event.queryStringParameters['code']
+
+  try {
+    const record = await access(code)
+    response.headers[
+      'Location'
+    ] = `https://idearobin.com/alfred?incoming=${escape(
+      record.incoming_webhook.url,
+    )}`
+
+    // This is a workaround for now.
+    // APIGatewayProxyHandler requires return but
+    // Istanbul can't reach this code after the header
+    // redirect code above
+    /* istanbul ignore next */
+    return response
+  } catch (e) {
+    response.body = JSON.stringify(
+      {
+        message: e.stack,
+        ...pick(e, ['error', 'message']),
+      },
+      null,
+      2,
+    )
+  }
+
+  return response
+}

@@ -1,37 +1,34 @@
 {
   "name": "armada-auth",
   "version": "0.0.1",
-  "description": "Armory microservices",
+  "description": "Armory auth microservice",
   "main": "handler.js",
   "scripts": {
-    "config": "serverless config credentials --provider aws --key $AWS_KEY --secret $AWS_SECRET --profile armada --overwrite",
-    "deploy": "serverless deploy",
-    "logs": "serverless logs",
+    "config": "serverless config --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY",
+    "deploy": "serverless deploy --stage $STAGE",
     "remove": "serverless remove",
-    "start": "serverless offline start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@hapi/joi": "^15.1.0",
-    "aws-sdk": "^2.507.0",
-    "loadash": "^1.0.0",
-    "massive": "^5.11.2",
+    "@g-six/kastle-router": "^0.1.5",
+    "aws-sdk": "^2.532.0",
+    "axios": "^0.19.0",
+    "massive": "^6.1.0",
     "redis": "^2.8.0",
-    "source-map-support": "^0.5.10"
+    "source-map-support": "^0.5.13"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.17",
-    "@types/hapi__joi": "^15.0.3",
-    "@types/lodash": "^4.14.136",
+    "@types/aws-lambda": "^8.10.31",
+    "@types/lodash": "^4.14.138",
     "@types/massive": "^5.4.3",
-    "@types/node": "^10.12.18",
+    "@types/node": "^12.7.5",
     "@types/redis": "^2.8.13",
-    "serverless": "^1.49.0",
-    "serverless-offline": "^5.10.1",
+    "lodash": "^4.17.15",
+    "serverless": "^1.52.1",
     "serverless-plugin-typescript": "^1.1.9",
     "serverless-pseudo-parameters": "^2.4.0",
-    "ts-loader": "^5.3.3",
-    "typescript": "^3.2.4"
+    "ts-loader": "^6.1.0",
+    "typescript": "^3.6.3"
   },
   "author": "Modified by g-six based on serverless-plugin-typescript",
   "license": "MIT"
