@@ -3,6 +3,7 @@ import { loadLocale } from '@g-six/swiss-knife'
 import { APIGatewayProxyHandler, APIGatewayProxyEvent } from 'aws-lambda'
 import getValue from 'lodash/get'
 import pick from 'lodash/pick'
+import version from './version'
 import {
   connectDb,
   closeDb,
@@ -23,74 +24,87 @@ const headers = {
   'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
 }
 
+const errorResponse = (code: number, error: string, errors?: {}): Response => ({
+  body: JSON.stringify(
+    {
+      error,
+      errors,
+    },
+    null,
+    2,
+  ),
+  headers,
+  statusCode: code || 500,
+})
+
+export const index = async () => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify(
+      {
+        message: `Life's a peach, eat more apples!`,
+        version,
+      },
+      null,
+      2,
+    ),
+  }
+}
+
 export const create: APIGatewayProxyHandler = async event => {
-  const response: Response = {
+  let response: Response = {
     body: '',
     headers,
     statusCode: 500,
   }
 
-  if (!event.body) {
-    response.body = JSON.stringify({ error: HttpStatus.E_400 }, null, 2)
-    response.statusCode = 400
-    return response
+  if (!event.body || event.body === '{}') {
+    return errorResponse(400, HttpStatus.E_400)
   }
 
-  let user
+  const { email, password } = JSON.parse(event.body)
+  if (!email || !password) {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const db = await connectDb()
+  const payload = JSON.parse(event.body)
 
   try {
-    const db = await connectDb()
-    if (event.headers['kasl-key']) {
-      user = await verifyUser(event.headers['kasl-key'], db)
-    }
+    let data
+    const kasl_key = event.headers && event.headers['kasl-key']
+    if (kasl_key) {
+      const user = await verifyUser(kasl_key, db)
 
-    if (!user || !user.id) {
-      await closeDb(db)
-      response.body = JSON.stringify({ error: HttpStatus.E_403 }, null, 2)
-      response.statusCode = 403
-      return response
-    }
+      if (!user) {
+        response.body = JSON.stringify(
+          {
+            error: HttpStatus.E_403,
+          },
+          null,
+          2,
+        )
+        response.statusCode = 403
+        return response
+      }
 
-    const record = await createRecord(event, user.id, db)
-    response.statusCode = 200
+      data = await createRecord(payload, user.id, db)
+
+      response.statusCode = 200
+    }
 
     response.body = JSON.stringify(
       {
-        record,
-        data: {
-          user,
-        },
+        data,
       },
       null,
       2,
     )
   } catch (e) {
-    if (e.status) response.statusCode = e.status
-    const errors = {}
-    if (e.errors) {
-      const lang_file =
-        [__dirname, 'lang', getValue(user, 'lang', 'en')].join('/') + '.yaml'
-      const locale = loadLocale(lang_file)
-      for (const key in e.errors) {
-        errors[key] = getValue(
-          locale,
-          `${key}.${e.errors[key]}`,
-          `${key}.${e.errors[key]}`,
-        )
-      }
-    }
-
-    response.body = JSON.stringify(
-      {
-        errors,
-        message: e.stack,
-        ...pick(e, ['error', 'message']),
-      },
-      null,
-      2,
-    )
+    response = errorResponse(e.status, e.stack)
   }
 
+  await closeDb(db)
   return response
 }
 

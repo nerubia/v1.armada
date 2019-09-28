@@ -1,4 +1,4 @@
-import { create, list, retrieve, update, record } from '../handler'
+import { create, index, list, retrieve, update, record } from '../handler'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import { hash } from '../hasher'
 
@@ -7,6 +7,14 @@ process.env.APP_SECRET = 'testing'
 const email = 'user@test.me'
 const logged_in_at = new Date().toISOString()
 const kasl_key = hash(`${email}${logged_in_at}`)
+
+describe('Records handler: index', () => {
+  it('should return results', async () => {
+    const { body } = await index()
+    const { version } = JSON.parse(body)
+    expect(version).toEqual('0.0.1')
+  })
+})
 
 describe('Records handler: create', () => {
   it('should create record', async () => {

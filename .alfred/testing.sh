@@ -1,10 +1,7 @@
 #!/bin/bash
 GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
-
-docker rm -f ${GIT_REPO_NAME}-${JOB_BASE_NAME}-test &> /dev/null
-docker build -t ${GIT_REPO_NAME}-${JOB_BASE_NAME}-test .
-CONTAINER_ID=$(docker run --name ${GIT_REPO_NAME}-${JOB_BASE_NAME}-test -d ${GIT_REPO_NAME}-${JOB_BASE_NAME}-test)
-
+IMAGE_NAME=$GIT_REPO_NAME'-'$JOB_BASE_NAME'-test'
+COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
   "text": "Testing Image",
@@ -22,10 +19,19 @@ curl -X POST -s $SLACK_URL -d '{
         { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'/console|'$BUILD_NUMBER'>" },
         { "type": "mrkdwn", "text": "*Project:* '$GIT_REPO_NAME'" },
         { "type": "mrkdwn", "text": "*Branch:* '$JOB_BASE_NAME'" }
-      ]
+      ],
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Running tests for* `'$JOB_BASE_NAME'.'$COMMIT_SHA'`"
+      }
     }
   ]
-}'
+}' &> /dev/null &
+docker build -t $IMAGE_NAME .
+docker run --rm --name ${IMAGE_NAME} ${IMAGE_NAME}
 
-docker rm -f ${GIT_REPO_NAME}-${JOB_BASE_NAME}-test
-docker rmi ${GIT_REPO_NAME}-${JOB_BASE_NAME}-test &> /dev/null
+curl -X POST -s $SLACK_URL -d '{
+  "type": "mrkdwn",
+  "text": "[<'$BUILD_URL'/console|'$BUILD_NUMBER'>] *Removing test containers* '$IMAGE_NAME'"
+}' &> /dev/null &
+# docker rmi $(docker images -f "dangling=true" -q) $IMAGE_NAME -f

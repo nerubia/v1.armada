@@ -1,7 +1,7 @@
-SERVICE_NAME=general
+SERVICE_NAME=auth
 
-cp .env src/services/general
-cd src/services/general
+cp .env src/services/auth
+cd src/services/auth
 
 echo "export default '"$COMMIT_SHA"'" > version.ts
 
@@ -17,7 +17,7 @@ docker build -t $IMAGE_TAG .
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
-  "text": "'$PREFIX' ```docker run --env-file .env \n  --name '$IMAGE_NAME' \n  '$IMAGE_TAG' .```"
+  "text": "'$PREFIX' ```docker run --env-file .env \n  --name '$IMAGE_NAME' \n  '$IMAGE_NAME' .```"
 }'
 docker run --env-file .env --name $IMAGE_NAME $IMAGE_TAG
 
@@ -27,7 +27,6 @@ curl -X POST -s $SLACK_URL -d '{
   "text": "'$PREFIX' `docker rmi '$IMAGE_TAG'`"
 }'
 
-# docker rm $IMAGE_NAME
 docker rm $IMAGE_NAME
-docker rmi $IMAGE_TAG -f
+# docker rmi $IMAGE_TAG -f
 # docker images | grep -E none | awk -e '{print $3}'| xargs echo

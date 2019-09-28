@@ -1,12 +1,11 @@
 import { HttpStatus } from '@g-six/kastle-router'
 import { generateUri, invalidRequestReducer } from '@g-six/swiss-knife'
-import { APIGatewayProxyEvent } from 'aws-lambda'
 import pick from 'lodash/pick'
 import massive from 'massive'
 import getEnv from './config'
 import { hash } from './hasher'
 import { schema } from './schema'
-import { Blog, ValidationError } from './types'
+import { Blog, Params, Filters, ValidationError } from './types'
 
 export const closeDb = async (db: massive.Database) => {
   // Not testable for now
@@ -17,19 +16,14 @@ export const closeDb = async (db: massive.Database) => {
 }
 
 export const connectDb = async () => {
-  const db_options = await getEnv([
-    'PGPORT',
-    'PGHOST',
-    'PGUSER',
-    'PGPASSWORD',
-    'PGDATABASE',
-  ])
+  const db_options = await getEnv()
+
   const db = await massive(db_options)
 
   return db
 }
 
-export const validateInput = (input: Blog): void | ValidationError => {
+export const validateInput = (input: Params): void | ValidationError => {
   const result = schema.validate(input, { abortEarly: false })
 
   if (result.error) {
@@ -63,19 +57,14 @@ export const verifyUser = async (
 }
 
 export const create = async (
-  event: APIGatewayProxyEvent,
-  user_id: number,
+  params: Blog,
+  created_by: number,
   db: massive.Database,
 ) => {
-  if (!event.body) {
-    throw {
-      message: HttpStatus.E_400,
-      status: 400,
-    }
-  }
-  const { contents, order, title } = JSON.parse(event.body)
+  const [date, ttz] = new Date().toISOString().split('T')
+  const time = ttz.substr(0, 8)
 
-  const validation_errors = validateInput({ contents, order, title })
+  const validation_errors = validateInput(params)
   if (validation_errors) {
     throw {
       errors: validation_errors.errors,
@@ -83,30 +72,18 @@ export const create = async (
       status: 400,
     }
   }
+  const slug = date + '-' + generateUri(params.title)
 
-  const [date, time] = new Date().toISOString().split('T')
-  const created_at = `${date} ${time.substring(0, 8)}`
-  const slug = date + '-' + generateUri(title)
-
-  const rec = {
-    contents,
+  const record = await db.saveDoc('blogs', {
+    ...params,
     slug,
-    title,
-    user_id,
-    created_at,
-    updated_at: null,
-  }
-
-  const record = await db.saveDoc('blogs', rec)
+    created_by,
+  })
 
   return record
 }
 
-export const list = async (
-  event: APIGatewayProxyEvent,
-  db: massive.Database,
-) => {
-  const query = event.queryStringParameters
+export const list = async (query: Filters, db: massive.Database) => {
   const options = {}
   let filters = {}
   options['limit'] = 10
@@ -138,11 +115,11 @@ export const retrieve = async (id: number, db: massive.Database) => {
 
 export const update = async (
   id: number,
-  body: string,
+  updates: Params,
   updated_by: number,
   db: massive.Database,
 ) => {
-  const input = pick(JSON.parse(body), ['contents', 'title'])
+  const input = pick(updates, ['contents', 'title'])
   const validation_errors = validateInput(input)
 
   if (validation_errors) {
