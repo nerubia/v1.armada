@@ -5,6 +5,17 @@ export interface Response {
   }
   statusCode: number
 }
+export interface Params {
+  title?: string
+  contents?: string
+}
+
+export interface Filters extends Params {
+  parent_id?: number
+  limit?: number
+  order?: number
+  slug?: string
+}
 
 export interface ValidationError {
   errors: {

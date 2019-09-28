@@ -4,23 +4,25 @@
   "description": "Armory microservices",
   "main": "handler.js",
   "scripts": {
-    "deploy": "serverless deploy",
+    "config": "serverless config credentials --provider aws --key $AWS_KEY --secret $AWS_SECRET --profile armada --overwrite",
+    "deploy": "serverless deploy --stage $STAGE",
     "remove": "serverless remove",
     "start": "serverless offline start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "aws-sdk": "^2.524.0",
     "source-map-support": "^0.5.13"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",
-    "@types/node": "^12.7.4",
-    "serverless": "^1.51.0",
-    "serverless-offline": "^5.10.1",
-    "serverless-webpack": "^5.3.1",
-    "ts-loader": "^6.0.4",
-    "typescript": "^3.6.2",
-    "webpack": "^4.39.3"
+    "@types/node": "^12.7.5",
+    "serverless": "^1.52.0",
+    "serverless-offline": "^5.11.0",
+    "serverless-plugin-typescript": "^1.1.9",
+    "serverless-pseudo-parameters": "^2.4.0",
+    "ts-loader": "^6.1.0",
+    "typescript": "^3.6.3"
   },
   "author": "Modified by g-six based on (https://github.com/elastic-coders/serverless-webpack)",
   "license": "MIT"

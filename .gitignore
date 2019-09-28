@@ -3,6 +3,7 @@ node_modules/
 .DS_Store
 .bak
 .env
+env-file
 .serverless
 .build
 coverage/

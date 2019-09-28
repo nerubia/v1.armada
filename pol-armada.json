@@ -1,0 +1,70 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowSE1Logs",
+            "Effect": "Allow",
+            "Action": "logs:*",
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringEqualsIfExists": {
+                    "aws:RequestedRegion": "ap-southeast-1"
+                }
+            }
+        },
+        {
+            "Sid": "AllowCfn",
+            "Effect": "Allow",
+            "Action": "cloudformation:*",
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringEqualsIfExists": {
+                    "aws:username": "armada"
+                }
+            }
+        },
+        {
+            "Sid": "AllowSE1Lambda",
+            "Effect": "Allow",
+            "Action": "lambda:*",
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringEqualsIfExists": {
+                    "aws:username": "armada",
+                    "aws:RequestedRegion": "ap-southeast-1"
+                }
+            }
+        },
+        {
+            "Sid": "AllowSE1S3",
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringEqualsIfExists": {
+                    "aws:username": "armada",
+                    "aws:RequestedRegion": "ap-southeast-1"
+                }
+            }
+        },
+        {
+            "Sid": "AllowSE1APIGw",
+            "Effect": "Allow",
+            "Action": [
+                "apigateway:*",
+                "ssm:GetParameters",
+                "ssm:GetParameter"
+            ],
+            "Resource": [
+                "arn:aws:apigateway:ap-southeast-1::*",
+                "arn:aws:ssm:ap-southeast-1:*:parameter/*"
+            ]
+        },
+        {
+            "Sid": "AllowIAM",
+            "Effect": "Allow",
+            "Action": "iam:*",
+            "Resource": "*"
+        }
+    ]
+}

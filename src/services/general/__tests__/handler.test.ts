@@ -22,6 +22,8 @@ describe('General:sitrep', () => {
       context,
       spyCallback,
     )
+    const body = JSON.parse(actual['body'])
     expect(actual).toHaveProperty('statusCode', 200)
+    expect(body).toHaveProperty('version', 'initial')
   })
 })
