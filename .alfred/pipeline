@@ -32,7 +32,7 @@ node {
     ).trim()
 
 
-    withCredentials([file(credentialsId: env_file_id, variable: 'ENV_FILE'), file(credentialsId: 'AIRSIDE_PEM', variable: 'AIRSIDE_PEM')]) {
+    withCredentials([file(credentialsId: 'AIRSIDE_PEM', variable: 'AIRSIDE_PEM')]) {
       sh "cat ${AIRSIDE_PEM} > .alfred/access-key"
     }
 
@@ -42,6 +42,7 @@ node {
       echo $COMMIT_SHORT > .alfred/git-commit-short.txt
       echo $ECR_URI > .alfred/ecr-uri.txt
       echo '<'$BUILD_URL'|Build #'$BUILD_NUMBER'>' > .alfred/build-link.txt
+      aws ssm get-parameter --name slack-service-uri --query Parameter.Value | xargs -I % sh -c 'echo https://hooks.slack.com/services/% > .alfred/slack-url.txt'
     """
   
     try {

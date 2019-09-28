@@ -1,6 +1,7 @@
 #!/bin/bash
 GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 COMMIT_ID=$(cat .alfred/git-commit-id.txt)
+SLACK_URL=$(cat .alfred/slack-url.txt)
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
