@@ -30,7 +30,7 @@ curl -X POST -s $SLACK_URL -d '{
 }' &> /dev/null &
 docker build -t $IMAGE_NAME . > build.log
 mkdir logs
-docker run --rm -it --name -v $PWD/logs:/var/log ${IMAGE_NAME} ${IMAGE_NAME} npm t -- --no-color --outputFile=/var/log/delete-me.json
+docker run --rm -it --name -v $PWD/logs:/var/log ${IMAGE_NAME} ${IMAGE_NAME} npm t -- --no-color --outputFile=$PWD/delete-me.json
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
