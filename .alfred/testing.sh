@@ -3,7 +3,7 @@ GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 IMAGE_NAME=$GIT_REPO_NAME'-'$JOB_BASE_NAME'-test'
 COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 SLACK_URL=$(cat .alfred/slack-url.txt)
-REPORT=$PWD'/unit-test-errors.json'
+REPORT=$PWD'/log:/var/log'
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
   "text": "Testing Image",
@@ -30,7 +30,7 @@ curl -X POST -s $SLACK_URL -d '{
   ]
 }' &> /dev/null &
 docker build -t $IMAGE_NAME . > build.log
-docker run --rm --name ${IMAGE_NAME} ${IMAGE_NAME} npm t -- --no-color --outputFile=$REPORT
+docker run --rm -t --name ${IMAGE_NAME} ${IMAGE_NAME} npm t -- --no-color --outputFile='/var/log/tests-error.log' --silent
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
