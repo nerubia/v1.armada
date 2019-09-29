@@ -32,7 +32,7 @@ curl -X POST -s $SLACK_URL -d '{
 docker build --target essentials -t $IMAGE_NAME . > build.log
 docker run --rm -t -v $REPORT \
   --name ${IMAGE_NAME} ${IMAGE_NAME} \
-  npm t -- --no-color --json --outputFile=/var/log/jest/tests-error.json --silent
+  npm t -- --no-color --json --outputFile=/var/log/jest/test-errors.json --silent
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",

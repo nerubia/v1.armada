@@ -55,7 +55,7 @@ node {
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Running tests')
       sh (
-        script: 'sh .alfred/failed.sh testing',
+        script: 'sh .alfred/notify.sh',
         returnStdout: false
       )
       throw e
