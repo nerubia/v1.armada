@@ -13,7 +13,6 @@ node {
   stage ('Checkout') {
     bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Checkout')
     checkout scm
-    env_file_id = 'env_file_integration'
     
     env_file_id = sh (
       script: "if [ $JOB_BASE_NAME = master ]; then echo 'env_file_master'; else echo 'env_file_integration'; fi",
@@ -37,11 +36,6 @@ node {
       returnStdout: true
     ).trim()
 
-
-    withCredentials([file(credentialsId: env_file_id, variable: 'ENV_FILE'), file(credentialsId: 'AIRSIDE_PEM', variable: 'AIRSIDE_PEM')]) {
-      sh "cat ${AIRSIDE_PEM} > .alfred/access-key"
-      sh "cat ${ENV_FILE} > .env"
-    }
 
     sh """
       echo $GIT_REPO_NAME > .alfred/git-repo-name.txt
@@ -88,17 +82,6 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Update services')
-    }
-  }
-  stage ('Restart containers') {
-    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Restart containers')
-    try {
-      sh (
-        script: 'sh .alfred/restart.sh',
-        returnStdout: true
-      )
-    } catch (e) {
-      bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Restart containers')
     }
   }
 }
