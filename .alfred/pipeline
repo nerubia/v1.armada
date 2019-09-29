@@ -45,6 +45,7 @@ node {
       sh '$(sh .alfred/checkout.sh)'
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Checkout')
+      throw e
     }
   }
   stage ('Testing') {
@@ -56,6 +57,7 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Running tests')
+      throw e
     }
   }
   stage ('Push image') {
@@ -67,6 +69,7 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Pushing image')
+      throw e
     }
   }
   stage ('Update services') {
@@ -78,6 +81,7 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Update services')
+      throw e
     }
   }
 }
