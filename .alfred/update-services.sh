@@ -2,6 +2,7 @@
 export GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 export COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 export ROOT_DIR=$(pwd)
+export SLACK_URL=$(cat .alfred/slack-url.txt)
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",

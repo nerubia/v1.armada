@@ -2,6 +2,7 @@
 GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 IMAGE_NAME=$GIT_REPO_NAME'-'$JOB_BASE_NAME'-test'
 COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
+SLACK_URL=$(cat .alfred/slack-url.txt)
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
   "text": "Testing Image",
