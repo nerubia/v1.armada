@@ -53,7 +53,7 @@ node {
     try {
       sh (
         script: 'sh .alfred/testing.sh',
-        returnStdout: false
+        returnStdout: true
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Running tests')
