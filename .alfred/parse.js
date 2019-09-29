@@ -1,7 +1,7 @@
 const { readFile } = require('fs')
 const { promisify } = require('util')
 
-const read = async (file) => {
+const read = async (file, author, build) => {
   const asyncRead = promisify(readFile)
 
   const results = JSON.parse(await asyncRead(file, 'utf-8'))
@@ -27,9 +27,18 @@ const read = async (file) => {
       },
       "text": {
         "type": "mrkdwn",
-        "text": `:red_circle: *Failed*\n${'```'}\n${errors.join('\n')}\n${'```'}}`,
+        "text": `:red_circle: *Unit tests has failed*\n${'```'}\n${errors.join('\n```\n```\n')}\n${'```'}`,
       },
     },
+    {
+      "type": "context",
+      "elements": [
+        {
+          type: 'mrkdwn',
+          text: `*Author:* ${author} • ${build}`
+        }
+      ]
+    }
   ]
 
   console.log(JSON.stringify({
@@ -39,4 +48,4 @@ const read = async (file) => {
   }, null, 2))
 }
 
-read(process.argv[2])
+read(process.argv[2], process.argv[3], process.argv[4])

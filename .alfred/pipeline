@@ -22,6 +22,10 @@ node {
       script: "git rev-parse HEAD",
       returnStdout: true
     ).trim()
+    COMMIT_AUTHOR = sh (
+      script: "git log --pretty=oneline --abbrev-commit --format=%an -n 1 | tr -d '\r\n'",
+      returnStdout: true
+    ).trim()
     COMMIT_SHORT = sh (
       script: "git rev-parse --short HEAD",
       returnStdout: true
@@ -34,6 +38,7 @@ node {
 
     sh """
       echo $GIT_REPO_NAME > .alfred/git-repo-name.txt
+      echo $COMMIT_AUTHOR > .alfred/commit-author.txt
       echo $COMMIT_ID > .alfred/git-commit-id.txt
       echo $COMMIT_SHORT > .alfred/git-commit-short.txt
       echo $ECR_URI > .alfred/ecr-uri.txt
