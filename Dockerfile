@@ -27,5 +27,5 @@ COPY ./template ./template
 FROM node:10 as tester
 WORKDIR /app
 COPY --from=essentials /app/ ./
-RUN npm test
+RUN npm test -- --no-color
 
