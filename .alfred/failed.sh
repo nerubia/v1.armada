@@ -1,5 +1,6 @@
 #!/bin/bash
 SLACK_URL=$(cat .alfred/slack-url.txt)
+
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
   "text": "Failed deployment",
@@ -14,7 +15,7 @@ curl -X POST -s $SLACK_URL -d '{
       },
       "text": {
         "type": "mrkdwn",
-        "text": "*Failed '$1'*\n>Please check your pipeline script oi!\n\n<'$BUILD_URL'|Build #'$BUILD_NUMBER'>"
+        "text": ":red_circle: *'$1' failed*\n>Please check your pipeline script oi!\n\n<'$BUILD_URL'|Build #'$BUILD_NUMBER'>"
       }
     }
   ]

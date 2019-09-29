@@ -70,6 +70,10 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Pushing image')
+      sh (
+        script: 'sh .alfred/failed.sh "Push image"',
+        returnStdout: false
+      )
       throw e
     }
   }
@@ -82,6 +86,10 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Update services')
+      sh (
+        script: 'sh .alfred/failed.sh "Update services"',
+        returnStdout: false
+      )
       throw e
     }
   }
