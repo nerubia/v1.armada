@@ -51,10 +51,7 @@ node {
   stage ('Testing') {
     bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Running tests')
     try {
-      sh (
-        script: 'sh .alfred/testing.sh',
-        returnStdout: true
-      )
+      sh '$(sh .alfred/testing.sh)'
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Running tests')
       throw e
