@@ -32,10 +32,6 @@ node {
     ).trim()
 
 
-    withCredentials([file(credentialsId: 'AIRSIDE_PEM', variable: 'AIRSIDE_PEM')]) {
-      sh "cat ${AIRSIDE_PEM} > .alfred/access-key"
-    }
-
     sh """
       echo $GIT_REPO_NAME > .alfred/git-repo-name.txt
       echo $COMMIT_ID > .alfred/git-commit-id.txt
@@ -82,17 +78,6 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Update services')
-    }
-  }
-  stage ('Restart containers') {
-    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Restart containers')
-    try {
-      sh (
-        script: 'sh .alfred/restart.sh',
-        returnStdout: true
-      )
-    } catch (e) {
-      bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Restart containers')
     }
   }
 }
