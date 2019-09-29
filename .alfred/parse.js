@@ -1,7 +1,7 @@
 const { readFile } = require('fs')
 const { promisify } = require('util')
 
-const read = async (file, author, build) => {
+const read = async (file, context) => {
   const asyncRead = promisify(readFile)
 
   const results = JSON.parse(await asyncRead(file, 'utf-8'))
@@ -16,26 +16,26 @@ const read = async (file, author, build) => {
 
   const blocks = [
     {
-      "type": "divider",
+      type: 'divider',
     },
     {
-      "type": "section",
-      "accessory": {
-        "type": "image",
-        "image_url": "https://greative-assets.s3.amazonaws.com/octocats/octocat.gif",
-        "alt_text": "Octocat walks out",
+      type: 'section',
+      accessory: {
+        'type': 'image',
+        'image_url': 'https://greative-assets.s3.amazonaws.com/octocats/octocat.gif',
+        'alt_text': 'Octocat walks out',
       },
-      "text": {
-        "type": "mrkdwn",
-        "text": `:red_circle: *Unit tests has failed*\n${'```'}\n${errors.join('\n```\n```\n')}\n${'```'}`,
+      text: {
+        type: 'mrkdwn',
+        text: `:red_circle: *Unit tests has failed*\n${'```'}\n${errors.join('\n```\n```\n')}\n${'```'}`,
       },
     },
     {
-      "type": "context",
-      "elements": [
+      type: 'context',
+      elements: [
         {
           type: 'mrkdwn',
-          text: `*Author:* ${author} • ${build}`
+          text: context,
         }
       ]
     }
@@ -48,4 +48,4 @@ const read = async (file, author, build) => {
   }, null, 2))
 }
 
-read(process.argv[2], process.argv[3], process.argv[4])
+read(process.argv[2], process.argv[3])
