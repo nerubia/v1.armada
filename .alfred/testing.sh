@@ -28,8 +28,8 @@ curl -X POST -s $SLACK_URL -d '{
     }
   ]
 }' &> /dev/null &
-docker build -t $IMAGE_NAME .
-docker run --rm --name ${IMAGE_NAME} ${IMAGE_NAME}
+docker build -t $IMAGE_NAME . > testing-build.log
+docker run --rm --name ${IMAGE_NAME} ${IMAGE_NAME} . > testing-run.log
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
