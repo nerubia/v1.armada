@@ -9,8 +9,9 @@ plugins:
 provider:
   name: aws
   environment:
-    AWS_ACCESS_KEY_ID: ${ssm:armada-access-key-id}
-    AWS_SECRET_ACCESS_KEY: ${ssm:armada-secret-access-key}
+    AWS_KEY: ${ssm:armada-access-key-id}
+    AWS_SECRET: ${ssm:armada-secret-access-key}
+    ARMADA_REGION: ${ssm:armada-region}}
     APP_SECRET: ${ssm:app-secret-${self:custom.stage}}
     CLIENT_ID: ${ssm:client-id-${self:custom.stage}}
     CLIENT_SECRET: ${ssm:client-secret-${self:custom.stage}}
@@ -23,7 +24,7 @@ provider:
     PGUSER: ${ssm:dbuser-${self:custom.stage}}
     SLACK_CLIENT_ID: ${ssm:slack-client-id}
     SLACK_CLIENT_SECRET: ${ssm:slack-client-secret}
-    SLACK_REDIRECT_URL: ${ssm:slack-redirect-url}
+    SLACK_REDIRECT_URL: ${ssm:slack-alfredci-redirect-url}
   runtime: nodejs10.x
   region: ap-southeast-1
   iamRoleStatements:
@@ -59,3 +60,21 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
           path: alfred
+  listEC2:
+    handler: handler.listServers
+    environment:
+      APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
+    events:
+      - http:
+          method: get
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          path: alfred/ec2-list

@@ -35,9 +35,9 @@ export const oauth: APIGatewayProxyHandler = async event => {
     const record = await access(code)
     const config = getEnv()
     response.statusCode = 302
-    response.headers['Location'] = `${decodeURI(
+    response.headers['Location'] = `${decodeURIComponent(
       config['SLACK_REDIRECT_URL'],
-    )}?incoming=${escape(record.incoming_webhook.url)}`
+    )}?incoming=${encodeURIComponent(record.incoming_webhook.url)}`
 
     // This is a workaround for now.
     // APIGatewayProxyHandler requires return but
@@ -77,11 +77,6 @@ export const listServers: APIGatewayProxyHandler = async () => {
 
   try {
     const records = await list()
-    // response.headers[
-    //   'Location'
-    // ] = `https://idearobin.com/alfred?incoming=${escape(
-    //   record.incoming_webhook.url,
-    // )}`
 
     // This is a workaround for now.
     // APIGatewayProxyHandler requires return but

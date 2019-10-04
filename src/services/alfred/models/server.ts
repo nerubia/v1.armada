@@ -1,9 +1,10 @@
 import AWS from 'aws-sdk'
 
 const aws_config = {
-  access_key_id: process.env.AWS_ACCESS_KEY_ID,
-  access_key_secret: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_DEFAULT_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_KEY,
+    secretAccessKey: process.env.AWS_SECRET,
+  },
 }
 
 AWS.config.update(aws_config)
