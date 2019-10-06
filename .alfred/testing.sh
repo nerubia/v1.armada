@@ -1,10 +1,12 @@
 #!/bin/bash
+GIT_AUTHOR=$(cat .alfred/git-author.txt)
 GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
-IMAGE_NAME=$GIT_REPO_NAME'-'$JOB_BASE_NAME'-test'
 COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
-SLACK_URL=$(cat .alfred/slack-url.txt)
+CONTAINER_NAME=$GIT_REPO_NAME'-'$COMMIT_SHA'-test'
+
 REPORT=$PWD'/log:/var/log/jest'
-curl -X POST -s $SLACK_URL -d '{
+
+curl -X POST -s -o curl-output.log $SLACK_URL -d '{
   "type": "mrkdwn",
   "text": "Testing Image",
   "blocks": [
@@ -17,8 +19,8 @@ curl -X POST -s $SLACK_URL -d '{
         "alt_text": "Testing Image"
       },
       "fields": [
-        { "type": "mrkdwn", "text": "*Stage:* Testing" },
-        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'/console|'$BUILD_NUMBER'>" },
+        { "type": "mrkdwn", "text": "*Stage:* Testing"git  },
+        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'console|'$BUILD_NUMBER'>" },
         { "type": "mrkdwn", "text": "*Project:* '$GIT_REPO_NAME'" },
         { "type": "mrkdwn", "text": "*Branch:* '$JOB_BASE_NAME'" }
       ],
@@ -29,13 +31,14 @@ curl -X POST -s $SLACK_URL -d '{
     }
   ]
 }' &> /dev/null &
-docker build --target essentials -t $IMAGE_NAME . > build.log
-docker run --rm -t -v $REPORT \
-  --name ${IMAGE_NAME} ${IMAGE_NAME} \
-  npm t -- --no-color --json --outputFile=/var/log/jest/test-errors.json --silent
 
-curl -X POST -s $SLACK_URL -d '{
+docker build --no-cache --target essentials -t $CONTAINER_NAME . > ./docker.log
+
+docker run --rm -t -v $REPORT \
+  --name $CONTAINER_NAME $CONTAINER_NAME \
+  npm t -- --no-color --json --outputFile=/var/log/jest/test-errors.json --silent > ./test-results.log
+
+curl -X POST -s $SLACK_URL -o curl-output.log -d '{
   "type": "mrkdwn",
-  "text": "[<'$BUILD_URL'/console|'$BUILD_NUMBER'>] *Removing test containers* '$IMAGE_NAME'"
+  "text": "[<'$BUILD_URL'console|'$BUILD_NUMBER'>] *Removing test containers* '$CONTAINER_NAME'"
 }' &> /dev/null &
-# docker rmi $(docker images -f "dangling=true" -q) $IMAGE_NAME -f

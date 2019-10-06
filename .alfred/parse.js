@@ -27,7 +27,7 @@ const read = async (file, context) => {
       },
       text: {
         type: 'mrkdwn',
-        text: `:red_circle: *Unit tests has failed*\n${'```'}\n${errors.join('\n```\n```\n')}\n${'```'}`,
+        text: `:red_circle: *Unit tests have failed*\n${'```'}\n${errors.join('\n```\n```\n')}\n${'```'}`,
       },
     },
     {

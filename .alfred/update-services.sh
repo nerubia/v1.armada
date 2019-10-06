@@ -2,7 +2,13 @@
 export GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 export COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 export ROOT_DIR=$(pwd)
-export SLACK_URL=$(cat .alfred/slack-url.txt)
+
+STAGE=dev
+if [ $JOB_BASE_NAME = master ] ; then
+  STAGE=live
+fi
+
+echo 'STAGE='$STAGE >> .env
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
@@ -18,7 +24,7 @@ curl -X POST -s $SLACK_URL -d '{
       },
       "fields": [
         { "type": "mrkdwn", "text": "*Stage:* Updating Lambdas" },
-        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'/console|'$BUILD_NUMBER'>" },
+        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'console|'$BUILD_NUMBER'>" },
         { "type": "mrkdwn", "text": "*Project:* '$GIT_REPO_NAME'" },
         { "type": "mrkdwn", "text": "*Branch:* '$JOB_BASE_NAME'" }
       ],
@@ -30,19 +36,12 @@ curl -X POST -s $SLACK_URL -d '{
   ]
 }'
 
-sh .alfred/services/general.sh
-
 cd $ROOT_DIR
-sh .alfred/services/auth.sh
-
-cd $ROOT_DIR
-sh .alfred/services/alfred.sh
-
-cd $ROOT_DIR
+sh .alfred/dir-services.sh
 
 # docker ps -a | grep -E Exited | awk -e '{print $1}' | xargs docker rm $GIT_REPO_NAME'-'$JOB_BASE_NAME
 # docker images | grep -E none | awk -e '{print $3}'| xargs docker rmi $GIT_REPO_NAME'-'$JOB_BASE_NAME
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
-  "text": "<'$BUILD_URL'/console|'$BUILD_NUMBER'>. *Updated all Lambdas!*"
+  "text": "<'$BUILD_URL'console|'$BUILD_NUMBER'>. *Updated all Lambdas!*"
 }'

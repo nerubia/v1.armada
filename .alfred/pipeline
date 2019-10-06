@@ -13,17 +13,16 @@ node {
   stage ('Checkout') {
     bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Checkout')
     checkout scm
-
+    GIT_AUTHOR = sh (
+      script: "git log --pretty=oneline --abbrev-commit --format=%an -n 1 | tr -d '\r\n'",
+      returnStdout: true
+    ).trim()
     GIT_REPO_NAME = sh (
       script: "basename `git config --get remote.origin.url` | sed 's/.git//'",
       returnStdout: true
     ).trim()
     COMMIT_ID = sh (
       script: "git rev-parse HEAD",
-      returnStdout: true
-    ).trim()
-    COMMIT_AUTHOR = sh (
-      script: "git log --pretty=oneline --abbrev-commit --format=%an -n 1 | tr -d '\r\n'",
       returnStdout: true
     ).trim()
     COMMIT_SHORT = sh (
@@ -37,13 +36,15 @@ node {
 
 
     sh """
+      echo 'AWS_DEFAULT_REGION=ap-southeast-1' > .env
+      echo 'AWS_ACCESS_KEY_ID='$ARMADA_KEY >> .env
+      echo 'AWS_SECRET_ACCESS_KEY='$ARMADA_SECRET >> .env
       echo $GIT_REPO_NAME > .alfred/git-repo-name.txt
-      echo $COMMIT_AUTHOR > .alfred/commit-author.txt
+      echo $GIT_AUTHOR > .alfred/git-author.txt
       echo $COMMIT_ID > .alfred/git-commit-id.txt
       echo $COMMIT_SHORT > .alfred/git-commit-short.txt
       echo $ECR_URI > .alfred/ecr-uri.txt
       echo '<'$BUILD_URL'|Build #'$BUILD_NUMBER'>' > .alfred/build-link.txt
-      aws ssm get-parameter --name slack-service-uri --query Parameter.Value | xargs -I % sh -c 'echo https://hooks.slack.com/services/% > .alfred/slack-url.txt'
     """
   
     try {
@@ -66,22 +67,6 @@ node {
       throw e
     }
   }
-  stage ('Push image') {
-    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Pushing image')
-    try {
-      sh (
-        script: 'sh .alfred/ecr-push.sh',
-        returnStdout: false
-      )
-    } catch (e) {
-      bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Pushing image')
-      sh (
-        script: 'sh .alfred/failed.sh "Push image"',
-        returnStdout: false
-      )
-      throw e
-    }
-  }
   stage ('Update services') {
     bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Update services')
     try {
@@ -91,10 +76,6 @@ node {
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Update services')
-      sh (
-        script: 'sh .alfred/failed.sh "Update services"',
-        returnStdout: false
-      )
       throw e
     }
   }

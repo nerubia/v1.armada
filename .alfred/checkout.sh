@@ -1,7 +1,6 @@
 #!/bin/bash
 GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
 COMMIT_ID=$(cat .alfred/git-commit-id.txt)
-SLACK_URL=$(cat .alfred/slack-url.txt)
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
@@ -17,7 +16,7 @@ curl -X POST -s $SLACK_URL -d '{
       },
       "fields": [
         { "type": "mrkdwn", "text": "*Stage:* Building Image" },
-        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'/console|'$BUILD_NUMBER'>" },
+        { "type": "mrkdwn", "text": "*Build:* <'$BUILD_URL'console|'$BUILD_NUMBER'>" },
         { "type": "mrkdwn", "text": "*Project:* '$GIT_REPO_NAME'" },
         { "type": "mrkdwn", "text": "*Branch:* '$JOB_BASE_NAME'" }
       ],
