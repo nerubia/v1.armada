@@ -6,7 +6,7 @@ import massive from 'massive'
 import getEnv from './config'
 import { hash } from './hasher'
 import { schema } from './schema'
-import { Page, ValidationError } from './types'
+import { Page, ValidationError, Categories } from './types'
 
 export const closeDb = async (db: massive.Database) => {
   // Not testable for now
@@ -73,9 +73,14 @@ export const create = async (
       status: 400,
     }
   }
-  const { category, contents, order, title } = JSON.parse(event.body)
+  const { contents, order, title } = JSON.parse(event.body)
 
-  const validation_errors = validateInput({ category, contents, order, title })
+  const validation_errors = validateInput({
+    category: Categories.GOC,
+    contents,
+    order,
+    title,
+  })
   if (validation_errors) {
     throw {
       errors: validation_errors.errors,
@@ -89,6 +94,7 @@ export const create = async (
   const slug = date + '-' + generateUri(title)
 
   const rec = {
+    category: Categories.GOC,
     contents,
     slug,
     title,
@@ -119,12 +125,14 @@ export const list = async (
   ]
 
   if (query) {
-    filters = pick(query, ['title', 'slug', 'category'])
+    filters = pick(query, ['title', 'slug'])
 
     if (query.limit) {
       options['limit'] = query.limit
     }
   }
+
+  filters['category'] = Categories.GOC
 
   const records = await db.pages.findDoc(filters, options)
   return records
@@ -174,6 +182,7 @@ export const update = async (
 
   const rec = {
     ...input,
+    category: Categories.GOC,
     updated_by,
     updated_at,
   }

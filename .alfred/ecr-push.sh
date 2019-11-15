@@ -3,6 +3,7 @@ COMMIT_ID=$(cat .alfred/git-commit-id.txt)
 COMMIT_SHA=$(cat .alfred/git-commit-short.txt)
 ECR_URI=$(cat .alfred/ecr-uri.txt)
 GIT_REPO_NAME=$(cat .alfred/git-repo-name.txt)
+SLACK_URL=$(cat .alfred/slack-url.txt)
 
 IMAGE_NAME=$GIT_REPO_NAME'-'$JOB_BASE_NAME':'$COMMIT_SHA
 
