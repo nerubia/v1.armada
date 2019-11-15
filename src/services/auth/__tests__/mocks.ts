@@ -1,4 +1,4 @@
-const email = 'test@email.me'
+export const email = 'test@email.me'
 
 export const spyFindToken = jest.fn(({ client_id, client_secret }) => {
   return client_id === 'valid id' && client_secret === 'valid secret'
