@@ -1,5 +1,5 @@
 import { BaseContext } from 'koa'
-import { loadLocales } from '../locales'
+import { loadLocales, translate } from '../locales'
 
 describe('locales.getLocales', () => {
   test('should list supported locales (based on yml files)', async () => {
@@ -14,7 +14,7 @@ describe('locales.getLocales', () => {
     let translated_text
 
     try {
-      translated_text = ctx.__('auth.authenticate', 'en')
+      translated_text = translate('auth.authenticate', 'en')
     } catch (e) {
       console.log(e)
     }
