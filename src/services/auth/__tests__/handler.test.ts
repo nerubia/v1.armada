@@ -1,15 +1,17 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import { create, list, login } from '../handler'
+import { create, index, login } from '../handler'
 import { spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
 process.env.APP_SECRET = 'test'
 const email = 'test@email.me'
-describe('Records handler: list', () => {
+describe('Records handler: index', () => {
   it('should return results', async () => {
-    const actual = await list(mockEvent() as APIGatewayProxyEvent)
-    expect(actual).toHaveProperty('statusCode', 200)
+    const { body } = await index()
+    const { version } = JSON.parse(body)
+    expect(version).toEqual('0.0.1')
   })
 })
+jest.mock('axios')
 
 describe('Records handler: create', () => {
   describe('with valid headers', () => {
@@ -19,13 +21,24 @@ describe('Records handler: create', () => {
     }
 
     it('should create record', async () => {
-      const body = { email: 'test@email.me', password: 'test123' }
+      const body = { email: 'test2@email.me', password: 'test123' }
 
       const actual = await create(mockEvent(
         body,
         headers,
       ) as APIGatewayProxyEvent)
       expect(actual).toHaveProperty('statusCode', 200)
+    })
+
+    it('should return invalid request on empty payload', async () => {
+      const body = {}
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+
+      expect(actual).toHaveProperty('statusCode', 400)
     })
 
     it('should return invalid request if required password was not provided', async () => {
@@ -35,7 +48,30 @@ describe('Records handler: create', () => {
         body,
         headers,
       ) as APIGatewayProxyEvent)
+
       expect(actual).toHaveProperty('statusCode', 400)
+    })
+
+    it('should return unauthorized if client-id or secret was wrong', async () => {
+      const body = { email: 'test2@email.me', password: 'test123' }
+
+      const actual = await create(mockEvent(body, {
+        'client-id': 'invalid id',
+        'client-secret': 'invalid secret',
+      }) as APIGatewayProxyEvent)
+
+      expect(actual).toHaveProperty('statusCode', 401)
+    })
+
+    it('should default to 500 status code', async () => {
+      const body = { email: 'error@test.me', password: 'test123' }
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+
+      expect(actual).toHaveProperty('statusCode', 500)
     })
   })
 })
@@ -47,6 +83,13 @@ describe('Records handler: login', () => {
     const actual = await login(mockEvent(body) as APIGatewayProxyEvent)
 
     expect(actual).toHaveProperty('statusCode', 200)
+  })
+
+  it('should return invalid request on no payload', async () => {
+    const body = {}
+
+    const actual = await login(mockEvent(body) as APIGatewayProxyEvent)
+    expect(actual).toHaveProperty('statusCode', 400)
   })
 
   it('should return invalid request if required password was not provided', async () => {
@@ -80,6 +123,7 @@ const spyEnd = jest.fn()
 
 jest.mock('massive', () =>
   jest.fn(() => ({
+    listTables: jest.fn(() => ['users']),
     withConnection: jest.fn(() => spyEnd),
     saveDoc: jest.fn((undefined, doc) => {
       return doc

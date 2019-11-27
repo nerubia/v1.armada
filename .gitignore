@@ -8,3 +8,4 @@ env-file
 .build
 coverage/
 lambda/
+sample-*.json

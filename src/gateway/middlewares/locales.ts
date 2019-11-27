@@ -8,7 +8,7 @@ interface Languages {
   [key: string]: Languages
 }
 
-const languages: Languages = {}
+export const languages: Languages = {}
 
 export const readLocales = async (): Promise<void> => {
   const dir = `${__dirname}/../locales`
@@ -32,8 +32,6 @@ export const loadLocales = async (
   next: () => {},
 ): Promise<void> => {
   await readLocales()
-
-  ctx.__ = translate
 
   // Important to await next() for async functions
   await next()
