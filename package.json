@@ -1,6 +1,6 @@
 {
   "name": "armada",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Serverless microservices",
   "main": "index.js",
   "scripts": {
