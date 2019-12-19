@@ -20,25 +20,14 @@ describe('Records handler: create', () => {
       'client-secret': 'invalid',
     }
 
-    it('should create record', async () => {
+    it('should not be able to create record', async () => {
       const body = { email: 'test2@email.me', password: 'test123' }
 
       const actual = await create(mockEvent(
         body,
         headers,
       ) as APIGatewayProxyEvent)
-      expect(actual).toHaveProperty('statusCode', 200)
-    })
-
-    it('should return invalid request on empty payload', async () => {
-      const body = {}
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-
-      expect(actual).toHaveProperty('statusCode', 400)
+      expect(actual).toHaveProperty('statusCode', 401)
     })
 
     it('should return invalid request if required password was not provided', async () => {
