@@ -18,6 +18,7 @@ app.use(
 app.use(
   bodyParser({
     enableTypes: ['json', 'text'],
+    jsonLimit: '100mb',
   }),
 )
 
