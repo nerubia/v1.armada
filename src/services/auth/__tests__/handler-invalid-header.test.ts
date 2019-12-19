@@ -51,17 +51,6 @@ describe('Records handler: create', () => {
 
       expect(actual).toHaveProperty('statusCode', 401)
     })
-
-    it('should default to 500 status code', async () => {
-      const body = { email: 'error@test.me', password: 'test123' }
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-
-      expect(actual).toHaveProperty('statusCode', 500)
-    })
   })
 })
 
