@@ -9,6 +9,14 @@ module.exports = {
     'mocks.ts',
     '/template/',
   ],
+  coverageThreshold: {
+    global: {
+      branches: 96.88,
+      functions: 99,
+      lines: 99,
+      statements: 99,
+    },
+  },
   moduleNameMapper: {
     '^services/(.*)$': '<rootDir>/services/$1',
   },
