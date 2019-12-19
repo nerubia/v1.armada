@@ -1,0 +1,92 @@
+properties(
+  [
+    buildDiscarder(
+      logRotator(
+        numToKeepStr: '5'
+      )
+    )
+  ]
+)
+
+node {
+  stage ('Checkout') {
+    checkout scm
+
+    STAGE = sh (
+      script: """
+        if [ $JOB_BASE_NAME = seeder.master ]; then
+          echo 'live'
+        elif [ $JOB_BASE_NAME = seeder.release ]; then
+          echo 'uat'
+        else
+          echo 'dev'
+        fi""",
+      returnStdout: true
+    ).trim()
+
+    GIT_REPO_NAME = sh (
+      script: "basename `git config --get remote.origin.url` | sed 's/.git//'",
+      returnStdout: true
+    ).trim()
+
+    COMMIT_SHORT = sh (
+      script: "git rev-parse --short HEAD",
+      returnStdout: true
+    ).trim()
+
+    DATABASE_HOST = sh (
+      script: "aws ssm get-parameter --output text --query Parameter.Value --name dbhost_$STAGE",
+      returnStdout: true
+    ).trim()
+
+    DATABASE_NAME = sh (
+      script: "aws ssm get-parameter --output text --query Parameter.Value --name dbname_$STAGE",
+      returnStdout: true
+    ).trim()
+
+    DATABASE_PASSWORD = sh (
+      script: "aws ssm get-parameter --output text --query Parameter.Value --name dbpass_$STAGE",
+      returnStdout: true
+    ).trim()
+
+    DATABASE_PORT = sh (
+      script: "aws ssm get-parameter --output text --query Parameter.Value --name dbport_$STAGE",
+      returnStdout: true
+    ).trim()
+
+    DATABASE_USER = sh (
+      script: "aws ssm get-parameter --output text --query Parameter.Value --name dbuser_$STAGE",
+      returnStdout: true
+    ).trim()
+
+    sh """
+      echo 'DATABASE_HOST='$DATABASE_HOST > .env
+      echo 'DATABASE_NAME='$DATABASE_NAME >> .env
+      echo 'DATABASE_PASSWORD='$DATABASE_PASSWORD >> .env
+      echo 'DATABASE_PORT='$DATABASE_PORT >> .env
+      echo 'DATABASE_USER='$DATABASE_USER >> .env
+
+      echo $GIT_REPO_NAME > .alfred/git-repo-name.txt
+      echo $COMMIT_SHORT > .alfred/git-commit-short.txt
+    """
+  }
+  stage ('Seed') {
+    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Seed')
+    try {
+      sh 'sh .alfred/seeder-start.sh'
+    } catch (e) {
+      bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Seed')
+      throw e
+    }
+  }
+  stage ('Clean up') {
+    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Clean up')
+    sh (
+        script: 'sh .alfred/cleanup.sh',
+        returnStdout: true
+    )
+  }
+  stage ('Notify Bitbucket') {
+    bitbucketStatusNotify(buildState: 'SUCCESSFUL')
+  }
+}

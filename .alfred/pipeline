@@ -1,24 +1,24 @@
-  
 properties(
   [
     buildDiscarder(
       logRotator(
-        numToKeepStr: '1'
+        numToKeepStr: '5'
       )
     )
   ]
 )
 
 node {
+  def DEPLOY = 'no'
+  def ENV_NAME = 'dev'
+
   stage ('Checkout') {
     bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Checkout')
     checkout scm
-    
-    env_file_id = sh (
-      script: "if [ $JOB_BASE_NAME = master ]; then echo 'env_file_master'; else echo 'env_file_integration'; fi",
+    GIT_AUTHOR = sh (
+      script: "git log --pretty=oneline --abbrev-commit --format=%an -n 1 | tr -d '\r\n'",
       returnStdout: true
     ).trim()
-
     GIT_REPO_NAME = sh (
       script: "basename `git config --get remote.origin.url` | sed 's/.git//'",
       returnStdout: true
@@ -31,24 +31,63 @@ node {
       script: "git rev-parse --short HEAD",
       returnStdout: true
     ).trim()
+
+    script {
+      if (JOB_BASE_NAME == 'integration' || JOB_BASE_NAME == 'master' || JOB_BASE_NAME =~ /release*/) {
+        DEPLOY = 'yes'
+      }
+
+      if (JOB_BASE_NAME == 'master') {
+        ENV_NAME = 'live'
+      } else if (JOB_BASE_NAME =~ /release*/) {
+        ENV_NAME = 'uat'
+      } else {
+        ENV_NAME = 'dev'
+      }
+    }
+
     ECR_URI = sh (
-      script: "aws ecr describe-repositories --query repositories[0].repositoryUri --repository '$GIT_REPO_NAME' | tr -d '\"'",
+      script: """
+        if [ ${DEPLOY} = yes ]; then
+          aws ecr describe-repositories --query repositories[0].repositoryUri --repository '$GIT_REPO_NAME' | tr -d '\"'
+        fi """,
       returnStdout: true
     ).trim()
 
 
     sh """
+      echo 'AWS_DEFAULT_REGION=ap-southeast-1' > .env
+      echo 'AWS_ACCESS_KEY_ID='$ARMADA_KEY >> .env
+      echo 'AWS_SECRET_ACCESS_KEY='$ARMADA_SECRET >> .env
       echo $GIT_REPO_NAME > .alfred/git-repo-name.txt
+      echo $GIT_AUTHOR > .alfred/git-author.txt
       echo $COMMIT_ID > .alfred/git-commit-id.txt
       echo $COMMIT_SHORT > .alfred/git-commit-short.txt
       echo $ECR_URI > .alfred/ecr-uri.txt
+      echo $ENV_NAME > .alfred/env.txt
       echo '<'$BUILD_URL'|Build #'$BUILD_NUMBER'>' > .alfred/build-link.txt
     """
-  
+
     try {
-      sh '$(sh .alfred/checkout.sh)'
+      sh (
+        script: 'sh .alfred/checkout.sh',
+        returnStdout: true
+      )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Checkout')
+      throw e
+    }
+  }
+  stage ('Linter check') {
+    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Linter check')
+    try {
+      sh (
+        script: 'sh .alfred/linting.sh',
+        returnStdout: true
+      )
+    } catch (e) {
+      bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Linter check')
+      throw e
     }
   }
   stage ('Testing') {
@@ -56,32 +95,47 @@ node {
     try {
       sh (
         script: 'sh .alfred/testing.sh',
-        returnStdout: false
+        returnStdout: true
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Running tests')
-    }
-  }
-  stage ('Push image') {
-    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Pushing image')
-    try {
       sh (
-        script: 'sh .alfred/ecr-push.sh',
+        script: 'sh .alfred/notify.sh',
         returnStdout: false
       )
-    } catch (e) {
-      bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Pushing image')
+      throw e
     }
   }
   stage ('Update services') {
-    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Update services')
+    script {
+      if (DEPLOY == 'yes') {
+        bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Update services')
+      } else {
+        echo 'Skip updating services'
+      }
+    }
+
     try {
       sh (
-        script: 'sh .alfred/update-services.sh',
+        script: """
+          if [ ${DEPLOY} = yes ]; then
+            sh .alfred/update-services.sh
+          fi """,
         returnStdout: true
       )
     } catch (e) {
       bitbucketStatusNotify(buildState: 'FAILED', buildName: 'Update services')
+      throw e
     }
+  }
+  stage ('Clean up') {
+    bitbucketStatusNotify(buildState: 'INPROGESS', buildName: 'Clean up')
+    sh (
+        script: 'sh .alfred/cleanup.sh',
+        returnStdout: true
+    )
+  }
+  stage ('Notify Bitbucket') {
+    bitbucketStatusNotify(buildState: 'SUCCESSFUL')
   }
 }

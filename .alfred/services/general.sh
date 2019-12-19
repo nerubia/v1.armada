@@ -17,9 +17,9 @@ docker build -t $IMAGE_TAG .
 
 curl -X POST -s $SLACK_URL -d '{
   "type": "mrkdwn",
-  "text": "'$PREFIX' ```docker run --env-file .env \n  --name '$IMAGE_NAME' \n  '$IMAGE_TAG' .```"
+  "text": "'$PREFIX' ```docker run --env-file .env \n  --name '$IMAGE_NAME' \n  '$IMAGE_TAG'```"
 }'
-docker run --env-file .env --name $IMAGE_NAME $IMAGE_TAG
+docker run --rm --env-file .env --name $IMAGE_NAME $IMAGE_TAG
 
 docker images | grep -E $SERVICE_NAME | awk -e '{print $3}'
 curl -X POST -s $SLACK_URL -d '{
@@ -27,7 +27,5 @@ curl -X POST -s $SLACK_URL -d '{
   "text": "'$PREFIX' `docker rmi '$IMAGE_TAG'`"
 }'
 
-# docker rm $IMAGE_NAME
 docker rm $IMAGE_NAME
 docker rmi $IMAGE_TAG -f
-# docker images | grep -E none | awk -e '{print $3}'| xargs echo

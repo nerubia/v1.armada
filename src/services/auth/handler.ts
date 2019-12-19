@@ -77,9 +77,6 @@ export const create = async (event: APIGatewayProxyEvent) => {
         return errorResponse(401, HttpStatus.E_401)
       }
     }
-  } else {
-    await closeDb(db)
-    return errorResponse(401, HttpStatus.E_401)
   }
 
   try {

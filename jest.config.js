@@ -23,9 +23,10 @@ module.exports = {
   rootDir: './src/',
   testEnvironment: 'node',
   testMatch: [
-    '<rootDir>/services/**/*.test.ts',
     '<rootDir>/gateway/**/*.test.ts',
+    '<rootDir>/services/**/*.test.ts',
+    '<rootDir>/utils/**/*.test.ts',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.serverless/', '/template/'],
-  verbose: true,
+  verbose: false,
 }

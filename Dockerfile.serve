@@ -12,18 +12,14 @@ COPY ./src ./src
 COPY package* ./
 COPY jest.config.js .
 COPY jest-coverage.config.js .
+COPY nodemon.json .
 COPY tsconfig.json .
 COPY .eslintignore .
 COPY .eslintrc.yaml .
 COPY .prettierrc.yaml .
 
-# Development stage
-FROM node:10 as dev
+# Run stage
+FROM node:10 as runner
 WORKDIR /app
 COPY --from=essentials /app/ ./
-COPY ./template ./template
-
-# Testing stage
-FROM node:10 as tester
-WORKDIR /app
-COPY --from=essentials /app/ ./
+CMD ["npm", "start"]

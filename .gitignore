@@ -3,9 +3,10 @@ node_modules/
 .DS_Store
 .bak
 .env
-env-file
+.env-dev
+env-file*
 .serverless
 .build
+sample-*.json
 coverage/
 lambda/
-sample-*.json

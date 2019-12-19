@@ -2,7 +2,6 @@ service:
   name: general
 
 plugins:
-  - serverless-offline
   - serverless-plugin-typescript
   - serverless-pseudo-parameters
 
@@ -10,9 +9,7 @@ provider:
   name: aws
   runtime: nodejs10.x
   region: ap-southeast-1
-
-custom:
-  stage: ${opt:stage, self:provider.stage}
+  apiName: armada-${self:custom.stage}
 
 functions:
   sitrep:
@@ -22,13 +19,16 @@ functions:
           method: get
           path: sitrep
 
+custom:
+  stage: ${opt:stage, self:provider.stage}
+
 resources:
   Outputs:
     ApiGatewayRestApiId:
       Value:
         Ref: ApiGatewayRestApi
       Export:
-        Name: ${self:custom.stage}-ApiGatewayRestApiId
+        Name: armada-${self:custom.stage}-api-id
 
     ApiGatewayRestApiRootResourceId:
       Value:
@@ -36,4 +36,4 @@ resources:
           - ApiGatewayRestApi
           - RootResourceId
       Export:
-        Name: ${self:custom.stage}-ApiGatewayRestApiRootResourceId
+        Name: armada-${self:custom.stage}-api-root-id

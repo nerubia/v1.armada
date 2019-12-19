@@ -1,7 +1,7 @@
-SERVICE_NAME=auth
+SERVICE_NAME=categories
 
-cp .env src/services/auth
-cd src/services/auth
+cp .env src/services/categories
+cd src/services/categories
 
 echo "export default '"$COMMIT_SHA"'" > version.ts
 

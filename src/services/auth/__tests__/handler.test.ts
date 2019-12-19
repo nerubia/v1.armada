@@ -74,20 +74,6 @@ describe('Records handler: create', () => {
       expect(actual).toHaveProperty('statusCode', 500)
     })
   })
-
-  describe('no valid headers', () => {
-    it('should return invalid request on empty headers', async () => {
-      const body = { email: 'test2@email.me', password: 'test123' }
-      const headers = {}
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-
-      expect(actual).toHaveProperty('statusCode', 401)
-    })
-  })
 })
 
 describe('Records handler: login', () => {

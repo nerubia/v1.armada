@@ -10,18 +10,14 @@ export default async () => {
   }
 
   let port = 5433
-
-  if (process.env.DATABASE_PORT) {
-    port = parseInt(process.env.DATABASE_PORT, 10)
-  }
   if (process.env.PGPORT) {
     port = parseInt(process.env.PGPORT, 10)
   }
   return {
-    host: process.env.DATABASE_HOST,
+    host: process.env.PGHOST,
     port,
-    database: process.env.DATABASE_NAME,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
+    database: process.env.PGDATABASE,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
   }
 }

@@ -1,0 +1,16 @@
+# Install
+FROM node:10 as installer
+WORKDIR /installs
+COPY package* ./
+RUN npm install
+
+# Seed
+FROM node:10 as essentials
+WORKDIR /app
+COPY --from=installer /installs/node_modules ./node_modules
+COPY ./src ./src
+COPY package* ./
+COPY tsconfig.json .
+COPY ./.env ./.env
+
+RUN npm run seed:all
