@@ -1,5 +1,5 @@
 service:
-  name: armada
+  name: <service_name_here>
 
 plugins:
   - serverless-offline
@@ -14,14 +14,14 @@ provider:
     CLIENT_SECRET: ${ssm:client_secret_${self:custom.stage}}
     NODE_ENV: ${self:custom.stage}
     NOTIFICATIONS_URI: ${ssm:notifications_uri}
-    PGDATABASE: ${ssm:dbname_${self:custom.stage}}
-    PGHOST: ${ssm:dbhost_${self:custom.stage}}
-    PGPASSWORD: ${ssm:dbpass_${self:custom.stage}}
-    PGPORT: ${ssm:dbport_${self:custom.stage}}
-    PGUSER: ${ssm:dbuser_${self:custom.stage}}
+    DATABASE_NAME: ${ssm:dbname_${self:custom.stage}}
+    DATABASE_PASSWORD: ${ssm:dbpass_${self:custom.stage}}
+    DATABASE_PORT: ${ssm:dbport_${self:custom.stage}}
+    DATABASE_HOST: ${ssm:dbhost_${self:custom.stage}}
+    DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
   runtime: nodejs10.x
   region: ap-southeast-1
-  stackName: ${self:custom.stage}-<service name here>
+  stackName: ${self:custom.project}-${self:custom.service_name}-${self:custom.stage}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -29,11 +29,13 @@ provider:
       Resource: "arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*"
   apiGateway:
     restApiId:
-      "Fn::ImportValue": armada-${self:custom.stage}-api-id
+      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-id
     restApiRootResourceId:
-      "Fn::ImportValue": armada-${self:custom.stage}-api-root-id
+      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-root-id
 
 custom:
+  project: <project_name_here>
+  service_name: <service_name_here>
   stage: ${opt:stage, self:provider.stage}
 
 functions:
