@@ -3,7 +3,7 @@ import { create, index } from '../handler'
 import { spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
 process.env.APP_SECRET = 'test'
-const email = 'test@email.me'
+
 describe('Records handler: index', () => {
   it('should return results', async () => {
     const { body } = await index()
@@ -13,22 +13,13 @@ describe('Records handler: index', () => {
 })
 jest.mock('axios')
 
+
 describe('Records handler: create', () => {
   describe('with no valid headers', () => {
     const headers = {
       'client-id': '',
       'client-secret': '',
     }
-
-    it('should create record', async () => {
-      const body = { email: 'test2@email.me', password: 'test123' }
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-      expect(actual).toHaveProperty('statusCode', 200)
-    })
 
     it('should return invalid request on empty payload', async () => {
       const body = {}
@@ -39,28 +30,6 @@ describe('Records handler: create', () => {
       ) as APIGatewayProxyEvent)
 
       expect(actual).toHaveProperty('statusCode', 400)
-    })
-
-    it('should return invalid request if required password was not provided', async () => {
-      const body = { email }
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-
-      expect(actual).toHaveProperty('statusCode', 400)
-    })
-
-    it('should return unauthorized if client-id or secret was wrong', async () => {
-      const body = { email: 'test2@email.me', password: 'test123' }
-
-      const actual = await create(mockEvent(body, {
-        'client-id': 'invalid id',
-        'client-secret': 'invalid secret',
-      }) as APIGatewayProxyEvent)
-
-      expect(actual).toHaveProperty('statusCode', 401)
     })
 
     it('should default to 500 status code', async () => {
@@ -91,8 +60,12 @@ const spyEnd = jest.fn()
 
 jest.mock('massive', () =>
   jest.fn(() => ({
+    instance: {
+      $pool: {
+        end: spyEnd,
+      },
+    },
     listTables: jest.fn(() => ['users']),
-    withConnection: jest.fn(() => spyEnd),
     saveDoc: jest.fn((undefined, doc) => {
       return doc
     }),

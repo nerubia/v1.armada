@@ -1,11 +1,9 @@
 import { Database } from 'massive'
-import { closeDb, connectDb, create, login, verifyClient } from '../model'
+import { create, login, verifyClient } from '../model'
 import { email, spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
-jest.mock('../config', () => {
-  return jest.fn().mockImplementation(() => [])
-})
 jest.mock('axios')
+jest.mock('@g-six/swiss-knife')
 
 process.env.APP_SECRET = 'testing'
 process.env.PORT = '5432'
@@ -31,22 +29,6 @@ const mock_db = ({
 } as unknown) as Database
 
 jest.mock('massive', () => jest.fn(() => mock_db))
-
-describe('closeDb', () => {
-  it(`should be able to create record`, async () => {
-    await closeDb(mock_db)
-    expect(spyEnd).toHaveBeenCalled()
-  })
-})
-
-describe('connectDb', () => {
-  it(`should be able to create record`, async () => {
-    const db = await connectDb()
-    expect(db).toHaveProperty('saveDoc')
-    expect(db).toHaveProperty('users')
-    expect(db).toHaveProperty('tokens')
-  })
-})
 
 describe('create', () => {
   it(`should be able to create record`, async () => {

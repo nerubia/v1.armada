@@ -2,14 +2,13 @@ import {
   HttpStatus,
   KastleResponseHeaders as headers,
 } from '@g-six/kastle-router'
+import { Database as database } from '@g-six/swiss-knife'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import Axios from 'axios'
 import { pick } from 'lodash'
 import version from './version'
 
 import {
-  connectDb,
-  closeDb,
   create as createRecord,
   login as loginUser,
   verifyClient,
@@ -58,8 +57,7 @@ export const create = async (event: APIGatewayProxyEvent) => {
   if (!email || !password) {
     return errorResponse(400, HttpStatus.E_400)
   }
-
-  const db = await connectDb()
+  const db = await database.getDatabase()
 
   if (event.headers['client-id'] && event.headers['client-secret']) {
     if (
@@ -73,7 +71,7 @@ export const create = async (event: APIGatewayProxyEvent) => {
           db,
         ))
       ) {
-        await closeDb(db)
+        await database.disconnectDb()
         return errorResponse(401, HttpStatus.E_401)
       }
     }
@@ -96,7 +94,7 @@ export const create = async (event: APIGatewayProxyEvent) => {
     response = errorResponse(e.status, e.stack)
   }
 
-  await closeDb(db)
+  await database.disconnectDb()
   return response
 }
 
@@ -116,8 +114,9 @@ export const login = async (event: APIGatewayProxyEvent) => {
     return errorResponse(400, HttpStatus.E_400)
   }
 
+  const db = await database.getDatabase()
+
   try {
-    const db = await connectDb()
     const results = await loginUser(email, password, db)
     response.statusCode = 200
     response.headers['kasl-key'] = results['kasl-key']
@@ -129,7 +128,6 @@ export const login = async (event: APIGatewayProxyEvent) => {
       null,
       2,
     )
-    await closeDb(db)
   } catch (e) {
     Axios.post(
       `https://hooks.slack.com/services${process.env.NOTIFICATIONS_URI}`,
@@ -140,6 +138,8 @@ export const login = async (event: APIGatewayProxyEvent) => {
     )
     response = errorResponse(e.status, e.message)
   }
+
+  await database.disconnectDb()
 
   return response
 }

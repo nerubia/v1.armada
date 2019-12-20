@@ -1,5 +1,7 @@
 export const email = 'test@email.me'
 
+export const spyDisconnectDb = jest.fn()
+
 export const spyFindToken = jest.fn(({ client_id, client_secret }) => {
   return client_id === 'valid id' && client_secret === 'valid secret'
 })

@@ -69,8 +69,12 @@ const spyEnd = jest.fn()
 
 jest.mock('massive', () =>
   jest.fn(() => ({
+    instance: {
+      $pool: {
+        end: spyEnd,
+      },
+    },
     listTables: jest.fn(() => ['users']),
-    withConnection: jest.fn(() => spyEnd),
     saveDoc: jest.fn((undefined, doc) => {
       return doc
     }),

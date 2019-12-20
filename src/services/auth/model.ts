@@ -1,7 +1,6 @@
 import { HttpStatus } from '@g-six/kastle-router'
 import { pick } from 'lodash'
-import massive, { Database } from 'massive'
-import getEnv from './config'
+import { Database } from 'massive'
 import { hash } from './hasher'
 import { Params, Results, User } from './types'
 
@@ -13,22 +12,6 @@ export const verifyClient = async (
   const token = await db.tokens.findDoc({ client_id, client_secret })
 
   return !!token
-}
-
-export const closeDb = async (db: Database) => {
-  // Not testable for now
-  /* istanbul ignore next */
-  await db.withConnection((conn: {}) => {
-    conn['pgp'].end()
-  })
-}
-
-export const connectDb = async (): Promise<Database> => {
-  const db_options = await getEnv()
-
-  const db = await massive(db_options)
-
-  return db
 }
 
 export const create = async (record: Params, db: Database) => {

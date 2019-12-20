@@ -10,25 +10,26 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@g-six/kastle-router": "^0.1.5",
-    "aws-sdk": "^2.532.0",
+    "@g-six/kastle-router": "^0.1.6",
+    "@g-six/swiss-knife": "^0.1.9",
+    "aws-sdk": "^2.594.0",
     "axios": "^0.19.0",
-    "massive": "^6.1.0",
+    "massive": "^6.1.4",
     "redis": "^2.8.0",
-    "source-map-support": "^0.5.13"
+    "source-map-support": "^0.5.16"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.31",
-    "@types/lodash": "^4.14.138",
+    "@types/aws-lambda": "^8.10.39",
+    "@types/lodash": "^4.14.149",
     "@types/massive": "^5.4.3",
-    "@types/node": "^12.7.5",
-    "@types/redis": "^2.8.13",
+    "@types/node": "^12.12.21",
+    "@types/redis": "^2.8.14",
     "lodash": "^4.17.15",
-    "serverless": "^1.52.1",
+    "serverless": "^1.60.0",
     "serverless-plugin-typescript": "^1.1.9",
-    "serverless-pseudo-parameters": "^2.4.0",
-    "ts-loader": "^6.1.0",
-    "typescript": "^3.6.3"
+    "serverless-pseudo-parameters": "^2.5.0",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.3"
   },
   "author": "Modified by g-six based on serverless-plugin-typescript",
   "license": "MIT"

@@ -4,6 +4,7 @@ import { spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
 process.env.APP_SECRET = 'test'
 const email = 'test@email.me'
+
 describe('Records handler: index', () => {
   it('should return results', async () => {
     const { body } = await index()
@@ -123,6 +124,11 @@ const spyEnd = jest.fn()
 
 jest.mock('massive', () =>
   jest.fn(() => ({
+    instance: {
+      $pool: {
+        end: spyEnd,
+      },
+    },
     listTables: jest.fn(() => ['users']),
     withConnection: jest.fn(() => spyEnd),
     saveDoc: jest.fn((undefined, doc) => {
