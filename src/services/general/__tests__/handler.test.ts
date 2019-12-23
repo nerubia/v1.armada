@@ -1,10 +1,10 @@
-import { index } from '../handler'
+import { sitrep } from '../handler'
 
 process.env.APP_SECRET = 'testing'
 
-describe('Records handler: index', () => {
+describe('Records handler: sitrep', () => {
   it('should return results', async () => {
-    const { body } = await index()
+    const { body } = await sitrep()
     const { version } = JSON.parse(body)
     expect(version).toEqual('0.0.1')
   })

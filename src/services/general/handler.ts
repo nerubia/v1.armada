@@ -1,6 +1,6 @@
 import version from './version'
 
-export const index = async () => {
+export const sitrep = async () => {
   return {
     statusCode: 200,
     body: JSON.stringify(

@@ -30,8 +30,8 @@ custom:
   project: kaishahero
 
 functions:
-  index:
-    handler: handler.index
+  sitrep:
+    handler: handler.sitrep
     events:
       - http:
           method: get
