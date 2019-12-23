@@ -6,15 +6,13 @@ import { MethodTypes } from '@g-six/kastle-router'
 jest.genMockFromModule('koa')
 jest.genMockFromModule('koa-router')
 
-const num_routes = 6
-
 describe('loadServices', () => {
   const mockApp = new App()
   const spyUse = jest.spyOn(mockApp, 'use')
 
   it('should load routes routes() and allowedMethods() for each services', () => {
     loadServices(mockApp)
-    expect(spyUse).toHaveBeenCalledTimes(num_routes)
+    expect(spyUse).toHaveBeenCalledTimes(4)
   })
 })
 
