@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'fs'
 import { safeLoad } from 'js-yaml'
-import { BaseContext } from 'koa'
+import { DefaultContext } from 'koa'
 import { get } from 'lodash'
 import { basename } from 'path'
 
@@ -8,7 +8,7 @@ interface Languages {
   [key: string]: Languages
 }
 
-export const languages: Languages = {}
+const languages: Languages = {}
 
 export const readLocales = async (): Promise<void> => {
   const dir = `${__dirname}/../locales`
@@ -28,10 +28,12 @@ export const translate = (key: string, language = 'en') => {
 }
 
 export const loadLocales = async (
-  ctx: BaseContext,
+  ctx: DefaultContext,
   next: () => {},
 ): Promise<void> => {
   await readLocales()
+
+  ctx.__ = translate
 
   // Important to await next() for async functions
   await next()

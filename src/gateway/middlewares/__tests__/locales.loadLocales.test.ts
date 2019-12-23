@@ -1,11 +1,11 @@
-import { BaseContext } from 'koa'
-import { loadLocales, translate } from '../locales'
+import { DefaultContext } from 'koa'
+import { loadLocales } from '../locales'
 
 describe('locales.getLocales', () => {
   test('should list supported locales (based on yml files)', async () => {
     const ctx = ({
       __: jest.fn(),
-    } as unknown) as BaseContext
+    } as unknown) as DefaultContext
 
     const next = jest.fn()
 
@@ -14,7 +14,7 @@ describe('locales.getLocales', () => {
     let translated_text
 
     try {
-      translated_text = translate('auth.authenticate', 'en')
+      translated_text = ctx.__('auth.authenticate', 'en')
     } catch (e) {
       console.log(e)
     }

@@ -1,4 +1,4 @@
-import { BaseContext } from 'koa'
+import { DefaultContext } from 'koa'
 
 import { loadLocales, translate } from '../locales'
 
@@ -6,7 +6,7 @@ describe('locales.translate', () => {
   test('should list supported locales (based on yml files)', async () => {
     const ctx = ({
       __: jest.fn(),
-    } as unknown) as BaseContext
+    } as unknown) as DefaultContext
 
     const next = jest.fn()
 

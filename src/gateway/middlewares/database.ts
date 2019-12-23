@@ -1,7 +1,6 @@
-import { BaseContext } from 'koa'
+import { DefaultContext } from 'koa'
 import massive from 'massive'
 import Config from '../config'
-import { translate } from '../middlewares/locales'
 
 export interface ConnectionOpts {
   database: string
@@ -26,12 +25,12 @@ export const connectDB = async (
 }
 
 export const loadDatabase = async (
-  ctx: BaseContext,
+  ctx: DefaultContext,
   next: () => {},
 ): Promise<void> => {
   console.log('Connecting to database')
   console.log(Config.database)
-  console.log(translate)
+  console.log(ctx.__)
   await connectDB(Config.database)
   next()
 }
