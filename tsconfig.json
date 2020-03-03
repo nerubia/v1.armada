@@ -16,6 +16,7 @@
       "services/*": ["services/*"],
       "@utils/*": ["utils/*"]
     },
+    "resolveJsonModule": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
     "preserveConstEnums": true,
