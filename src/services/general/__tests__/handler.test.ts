@@ -6,7 +6,7 @@ describe('Records handler: sitrep', () => {
   it('should return results', async () => {
     const { body } = await sitrep()
     const { version } = JSON.parse(body)
-    expect(version).toEqual('0.0.1')
+    expect(version).toEqual('0.0.2')
   })
 })
 

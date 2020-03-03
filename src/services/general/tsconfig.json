@@ -13,6 +13,7 @@
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "preserveConstEnums": true,
+    "resolveJsonModule": true,
     "strictNullChecks": true,
     "sourceMap": true,
     "suppressImplicitAnyIndexErrors": true
