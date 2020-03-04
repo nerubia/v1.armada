@@ -1,5 +1,5 @@
 service:
-  name: kaishahero
+  name: katmoni
 
 plugins:
   - serverless-offline
@@ -27,7 +27,7 @@ provider:
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-  project: kaishahero
+  project: katmoni
 
 functions:
   sitrep:

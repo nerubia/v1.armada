@@ -14,7 +14,7 @@
     "@g-six/kastle-router": "^0.1.6",
     "@g-six/swiss-knife": "^0.1.9",
     "@hapi/joi": "^17.1.0",
-    "aws-sdk": "^2.631.0",
+    "aws-sdk": "^2.632.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "massive": "^6.2.0",
