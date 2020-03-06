@@ -1,3 +1,3 @@
-import { sitrep } from './general/handler'
+import { sitrep } from './sitrep/handler'
 
 export { sitrep }
