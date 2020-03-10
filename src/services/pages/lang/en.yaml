@@ -1,8 +1,0 @@
-contents:
-  any:
-    empty: 'Content is required'
-    required: 'Content is required'
-title:
-  any:
-    empty: 'Title is required'
-    required: 'Title is required'

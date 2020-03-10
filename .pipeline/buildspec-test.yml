@@ -1,0 +1,11 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+    commands:
+      - docker build --no-cache --target essentials -t katmoni-armada .
+  build:
+    commands:
+      - docker run --rm katmoni-armada npm t

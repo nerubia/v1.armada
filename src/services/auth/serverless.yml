@@ -33,7 +33,7 @@ provider:
       "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-root-id
 
 custom:
-  project: kaishahero
+  project: katmoni
   service_name: auth
   stage: ${opt:stage, self:provider.stage}
 
