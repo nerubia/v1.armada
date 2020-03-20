@@ -19,6 +19,7 @@ export const create = async (record: Params, db: Database) => {
   const time = ttz.substr(0, 8)
   const tables = await db.listTables()
 
+  /* istanbul ignore else */
   if (tables.indexOf('users') >= 0) {
     const records = await db.users.findDoc(pick(record, ['email']))
 
