@@ -8,4 +8,4 @@ phases:
       - docker build --no-cache --target essentials -t katmoni-armada .
   build:
     commands:
-      - docker run --rm katmoni-armada npm t
+      - docker run --rm katmoni-armada npm run coverage

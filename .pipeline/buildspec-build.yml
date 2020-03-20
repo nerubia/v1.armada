@@ -5,10 +5,13 @@ phases:
     runtime-versions:
       nodejs: 10
     commands:
+      # install
       - docker build --no-cache --target essentials -t katmoni-armada .
   pre_build:
     commands:
+      # linter
       - docker run --rm katmoni-armada npm run l
   build:
     commands:
-      - docker run --rm katmoni-armada npm t
+      # test
+      - docker run --rm katmoni-armada npm run coverage
