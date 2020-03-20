@@ -1,3 +1,10 @@
+export enum Messages {
+  EMAIL_TAKEN = 'error.email.taken',
+  EXPIRED_KEY = 'error.key.expired',
+  INVALID_KEY = 'error.key.invalid',
+  RECORD_NOT_FOUND = 'error.incorrect.or.not.found',
+}
+
 export interface AuthHeaders {
   'client-id': string
   'client-secret': string

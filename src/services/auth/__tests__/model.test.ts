@@ -62,6 +62,7 @@ describe('create', () => {
         mock_db,
       )
     } catch (e) {
+      console.log(existing_user, e.message)
       expect(e).toHaveProperty('status', 400)
     }
   })
@@ -118,9 +119,12 @@ describe('activate', () => {
   })
 
   it(`should return error 403 on expired key`, async () => {
+    try {
       const actual = await activate('expired-key@test.me', hash('2018-08-18 10:00:00'), mock_db)
-      console.log(actual)
       expect(actual).toHaveProperty('is_activated', false)
+    } catch (e) {
+      expect(e.status).toEqual(403)
+    }
   })
 })
 

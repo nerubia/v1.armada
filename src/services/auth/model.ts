@@ -2,7 +2,7 @@ import { HttpStatus } from '@g-six/kastle-router'
 import { pick } from 'lodash'
 import { Database } from 'massive'
 import { hash } from './hasher'
-import { Params, Results, User } from './types'
+import { Messages, Params, Results, User } from './types'
 
 export const verifyClient = async (
   client_id: string,
@@ -22,9 +22,9 @@ export const create = async (record: Params, db: Database) => {
   /* istanbul ignore else */
   if (tables.indexOf('users') >= 0) {
     const records = await db.users.findDoc(pick(record, ['email']))
-
+    console.log(records, pick(record, ['email']))
     if (records.length >= 1) {
-      throw { message: 'error.email.taken', status: 400 }
+      throw { message: Messages.EMAIL_TAKEN, status: 400 }
     }
   }
 
@@ -72,7 +72,7 @@ export const activate = async (
   const compare = hash([date, time].join(' '))
 
   if (compare != activation_key) {
-    throw { message: HttpStatus.E_403, status: 403 }
+    throw { message: Messages.INVALID_KEY, status: 403 }
   }
 
   const registered_at = new Date(user.registered_at)
@@ -82,6 +82,8 @@ export const activate = async (
 
   if ((now.getTime() - registered_at.getTime()) / 60 / 60 / 1000 < 6) {
     is_activated = true
+  } else {
+    throw { message: Messages.EXPIRED_KEY, status: 403 }
   }
 
   const kasl_key = hash(`${user.email}${logged_in_at}`)
@@ -111,7 +113,7 @@ export const login = async (email: string, password: string, db: Database) => {
   })
 
   if (records.length != 1) {
-    throw { message: HttpStatus.E_403, status: 403 }
+    throw { message: Messages.RECORD_NOT_FOUND, status: 403 }
   }
   const logged_in_at = new Date().toISOString()
   const kasl_key = hash(`${records[0].email}${logged_in_at}`)
