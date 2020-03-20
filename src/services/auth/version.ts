@@ -1,1 +1,3 @@
-export default '0.0.1'
+import * as data from './package.json'
+
+export default data.version

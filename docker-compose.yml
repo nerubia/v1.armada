@@ -9,7 +9,7 @@ services:
     container_name: 'armada'
     env_file: './.env'
     ports:
-      - '8888:8888'
+      - '8880:8888'
     restart: unless-stopped
     volumes:
       - ./.git:/app/.git:ro

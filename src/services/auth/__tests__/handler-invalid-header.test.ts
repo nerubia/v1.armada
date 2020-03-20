@@ -8,10 +8,17 @@ describe('Records handler: index', () => {
   it('should return results', async () => {
     const { body } = await index()
     const { version } = JSON.parse(body)
-    expect(version).toEqual('0.0.1')
+    expect(version).toEqual('0.0.4')
   })
 })
-jest.mock('axios')
+
+const happy_user = {
+  email: 'test2@email.me',
+  first_name: 'tes',
+  last_name: 't123',
+  password: 'test123',
+  confirm_password: 'test123',
+}
 
 describe('Records handler: create', () => {
   describe('with no valid headers', () => {
@@ -21,7 +28,7 @@ describe('Records handler: create', () => {
     }
 
     it('should not be able to create record', async () => {
-      const body = { email: 'test2@email.me', password: 'test123' }
+      const body = happy_user
 
       const actual = await create(mockEvent(
         body,
@@ -42,7 +49,7 @@ describe('Records handler: create', () => {
     })
 
     it('should return unauthorized if client-id or secret was wrong', async () => {
-      const body = { email: 'test2@email.me', password: 'test123' }
+      const body = happy_user
 
       const actual = await create(mockEvent(body, {
         'client-id': 'invalid id',

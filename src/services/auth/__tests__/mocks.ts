@@ -8,8 +8,14 @@ export const spyFindToken = jest.fn(({ client_id, client_secret }) => {
 
 export const spyFindUsers = jest.fn(creds => {
   if (creds.email === 'error@test.me') throw Error('Test error')
-
-  return creds.email === email ? [{ id: 1, email }] : []
+  const [date, ttz] = new Date().toISOString().split('T')
+  const time = ttz.substr(0, 8)
+  if (creds.email === 'expired-key@test.me') {
+    return [{ id: 1, email: creds.email, registered_at: '2018-08-18 10:00:00' }]
+  }
+  return creds.email === email
+    ? [{ id: 1, email, registered_at: [date, time].join(' ') }]
+    : []
 })
 
 export const spyUpdateDoc = jest.fn((id, rec) => {

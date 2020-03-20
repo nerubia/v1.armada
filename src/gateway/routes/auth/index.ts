@@ -11,7 +11,7 @@ const baseUrl = '/auth'
 const routes: KastleRoutes = {
   signup: {
     method: MethodTypes.Post,
-    route: '/signup',
+    route: '/sign-up',
     middlewares: [lambdaMiddleware(create)],
   },
   login: {

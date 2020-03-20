@@ -24,17 +24,84 @@ export const create = async (record: Params, db: Database) => {
     const records = await db.users.findDoc(pick(record, ['email']))
 
     if (records.length >= 1) {
-      throw { message: HttpStatus.E_400, status: 400 }
+      throw { message: 'error.email.taken', status: 400 }
     }
   }
 
   const user: User = await db.saveDoc('users', {
     email: record.email,
+    first_name: record.first_name,
+    last_name: record.last_name,
     password_hash: hash(record.password),
-    created_at: [date, time].join(' '),
+    is_activated: false,
+    registered_at: [date, time].join(' '),
+    is_receiving_newsletter: record.is_receiving_newsletter,
+  })
+  const activation_link = hash([date, time].join(' '))
+
+  return {
+    ...pick(user, [
+      'id',
+      'email',
+      'first_name',
+      'last_name',
+      'created_at',
+      'registered_at',
+    ]),
+    activation_link,
+  }
+}
+
+export const activate = async (
+  email: string,
+  activation_key: string,
+  db: Database,
+) => {
+  const records = await db.users.findDoc({
+    email,
   })
 
-  return pick(user, ['id', 'email', 'created_at'])
+  if (records.length != 1) {
+    throw { message: HttpStatus.E_403, status: 403 }
+  }
+
+  const [user] = records
+
+  const [date, ttz] = `${user.registered_at}`.split(' ')
+  const time = ttz.substr(0, 8)
+  const compare = hash([date, time].join(' '))
+
+  if (compare != activation_key) {
+    throw { message: HttpStatus.E_403, status: 403 }
+  }
+
+  const registered_at = new Date(user.registered_at)
+  const logged_in_at = new Date().toISOString()
+  const now = new Date()
+  let is_activated = false
+
+  if ((now.getTime() - registered_at.getTime()) / 60 / 60 / 1000 < 6) {
+    is_activated = true
+  }
+
+  const kasl_key = hash(`${user.email}${logged_in_at}`)
+
+  const updated = await db.users.updateDoc(user.id, {
+    logged_in_at,
+    is_activated,
+    kasl_key,
+  })
+
+  const results = (pick(updated, [
+    'id',
+    'email',
+    'is_activated',
+    'logged_in_at',
+  ]) as unknown) as Results
+
+  results['kasl-key'] = kasl_key
+
+  return results
 }
 
 export const login = async (email: string, password: string, db: Database) => {

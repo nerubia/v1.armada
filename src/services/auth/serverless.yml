@@ -18,6 +18,7 @@ provider:
     DATABASE_PORT: ${ssm:dbport_${self:custom.stage}}
     DATABASE_HOST: ${ssm:dbhost_${self:custom.stage}}
     DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
+    MANDRILL_API_KEY: ${ssm:mandrill_api_key}
   runtime: nodejs10.x
   region: ap-southeast-1
   stackName: ${self:custom.project}-${self:custom.service_name}-${self:custom.stage}
@@ -45,6 +46,13 @@ functions:
           method: get
           cors: true
           path: auth
+  activate:
+    handler: handler.activate
+    events:
+      - http:
+          method: post
+          cors: true
+          path: auth/activate
   create:
     handler: handler.create
     events:

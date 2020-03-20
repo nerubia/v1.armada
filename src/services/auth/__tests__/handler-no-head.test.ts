@@ -8,11 +8,11 @@ describe('Records handler: index', () => {
   it('should return results', async () => {
     const { body } = await index()
     const { version } = JSON.parse(body)
-    expect(version).toEqual('0.0.1')
+    expect(version).toEqual('0.0.4')
   })
 })
-jest.mock('axios')
 
+jest.mock('mandrill-api')
 
 describe('Records handler: create', () => {
   describe('with no valid headers', () => {
@@ -33,7 +33,13 @@ describe('Records handler: create', () => {
     })
 
     it('should default to 500 status code', async () => {
-      const body = { email: 'error@test.me', password: 'test123' }
+      const body = {
+        email: 'error@test.me',
+        first_name: 'error',
+        last_name: 'self',
+        password: 'test123',
+        confirm_password: 'test123',
+      }
 
       const actual = await create(mockEvent(
         body,

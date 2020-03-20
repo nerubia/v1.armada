@@ -4,11 +4,12 @@ import {
 } from '@g-six/kastle-router'
 import { Database as database } from '@g-six/swiss-knife'
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import Axios from 'axios'
 import { pick } from 'lodash'
+import { Mandrill } from 'mandrill-api'
 import version from './version'
 
 import {
+  activate as activateUser,
   create as createRecord,
   login as loginUser,
   verifyClient,
@@ -53,10 +54,52 @@ export const create = async (event: APIGatewayProxyEvent) => {
     return errorResponse(400, HttpStatus.E_400)
   }
 
-  const { email, password } = JSON.parse(event.body)
-  if (!email || !password) {
-    return errorResponse(400, HttpStatus.E_400)
+  const {
+    email,
+    first_name,
+    last_name,
+    password,
+    confirm_password,
+  } = JSON.parse(event.body)
+  const errors = []
+
+  if (!email) {
+    errors.push({
+      field: 'email',
+      message: 'error.email.required',
+    })
   }
+  if (!first_name) {
+    errors.push({
+      field: 'first_name',
+      message: 'error.first_name.required',
+    })
+  }
+  if (!last_name) {
+    errors.push({
+      field: 'last_name',
+      message: 'error.last_name.required',
+    })
+  }
+
+  if (!password) {
+    errors.push({
+      field: 'password',
+      message: 'error.password.required',
+    })
+  }
+
+  if (confirm_password != password) {
+    errors.push({
+      field: 'confirm_password',
+      message: 'error.confirm_password.invalid',
+    })
+  }
+
+  if (errors.length > 0) {
+    return errorResponse(400, HttpStatus.E_400, errors)
+  }
+
   const db = await database.getDatabase()
 
   if (event.headers['client-id'] && event.headers['client-secret']) {
@@ -81,6 +124,50 @@ export const create = async (event: APIGatewayProxyEvent) => {
     const payload = JSON.parse(event.body)
     const data = await createRecord(payload, db)
 
+    const { MANDRILL_API_KEY } = process.env
+    const mandrill_client = new Mandrill(MANDRILL_API_KEY as string)
+    const template_name = 'email-validation'
+    const template_content = [
+      {
+        name: 'first_name',
+        content: data.first_name,
+      },
+      {
+        name: 'activation_link',
+        content: `${event.headers.Referer}?k=${data.activation_link}`,
+      },
+    ]
+
+    const message = {
+      to: [
+        {
+          email: data.email,
+          name: [data.first_name, data.last_name].join(' '),
+          type: 'to',
+        },
+      ],
+      global_merge_vars: template_content,
+    }
+
+    await new Promise((resolve, reject) => {
+      mandrill_client.messages.sendTemplate(
+        {
+          template_name,
+          template_content,
+          async: true,
+          message,
+        },
+        results => {
+          console.log(results)
+          resolve(results)
+        },
+        error => {
+          console.log(error)
+          reject(error)
+        },
+      )
+    })
+
     response.statusCode = 200
 
     response.body = JSON.stringify(
@@ -92,9 +179,57 @@ export const create = async (event: APIGatewayProxyEvent) => {
     )
   } catch (e) {
     response = errorResponse(e.status, e.stack)
+    if (e.message) {
+      response = errorResponse(e.status, e.message)
+    }
   }
 
   await database.disconnectDb()
+  return response
+}
+
+export const activate = async (event: APIGatewayProxyEvent) => {
+  let response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  if (!event.body || event.body === '{}') {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const { email, activation_key } = JSON.parse(event.body)
+  if (!email || !activation_key) {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const db = await database.getDatabase()
+
+  try {
+    const results = await activateUser(email, activation_key, db)
+    response.statusCode = 200
+    response.headers['kasl-key'] = results['kasl-key']
+
+    response.body = JSON.stringify(
+      {
+        data: pick(results, [
+          'id',
+          'email',
+          'created_at',
+          'registered_at',
+          'updated_at',
+        ]),
+      },
+      null,
+      2,
+    )
+  } catch (e) {
+    response = errorResponse(e.status, e.message)
+  }
+
+  await database.disconnectDb()
+
   return response
 }
 
@@ -129,13 +264,6 @@ export const login = async (event: APIGatewayProxyEvent) => {
       2,
     )
   } catch (e) {
-    Axios.post(
-      `https://hooks.slack.com/services${process.env.NOTIFICATIONS_URI}`,
-      {
-        type: 'mrkdwn',
-        text: ['```', e.toString(), '```'].join('\n\n'),
-      },
-    )
     response = errorResponse(e.status, e.message)
   }
 

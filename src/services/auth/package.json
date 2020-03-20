@@ -1,19 +1,21 @@
 {
   "name": "armada-auth",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Armory auth microservice",
   "main": "handler.js",
   "scripts": {
     "config": "serverless config --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY",
     "deploy": "serverless deploy --stage $STAGE",
     "remove": "serverless remove --stage $STAGE",
+    "start": "serverless offline start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@g-six/kastle-router": "^0.1.6",
     "@g-six/swiss-knife": "^0.1.9",
-    "aws-sdk": "^2.634.0",
+    "aws-sdk": "^2.641.0",
     "axios": "^0.19.2",
+    "mandrill-api": "^1.0.45",
     "massive": "^6.2.0",
     "redis": "^3.0.2",
     "source-map-support": "^0.5.16"
@@ -21,11 +23,12 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.46",
     "@types/lodash": "^4.14.149",
+    "@types/mandrill-api": "^1.0.30",
     "@types/massive": "^5.4.3",
-    "@types/node": "^13.7.7",
+    "@types/node": "^13.9.1",
     "@types/redis": "^2.8.16",
     "lodash": "^4.17.15",
-    "serverless": "^1.65.0",
+    "serverless": "^1.66.0",
     "serverless-plugin-typescript": "^1.1.9",
     "serverless-pseudo-parameters": "^2.5.0",
     "ts-loader": "^6.2.1",
