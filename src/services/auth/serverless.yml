@@ -60,6 +60,13 @@ functions:
           method: post
           cors: true
           path: auth/sign-up
+  reset_password:
+    handler: handler.resetPassword
+    events:
+      - http:
+          method: put
+          cors: true
+          path: auth/reset-password
   login:
     handler: handler.login
     events:
