@@ -79,14 +79,16 @@ describe('login', () => {
     try {
       await login('testing@aaa.co', 'asd', mock_db)
     } catch (e) {
+      expect(e.message).toEqual('error.invalid_credentials')
       expect(e.status).toEqual(403)
     }
   })
 
-  it(`should return error 403 on invalid credentials`, async () => {
+  it(`should return error 403 on unverified email`, async () => {
     try {
-      await login('testing@aaa.co', 'asd', mock_db)
+      await login('unverified@test.me', 'asd', mock_db)
     } catch (e) {
+      expect(e.message).toEqual('error.unverified_email')
       expect(e.status).toEqual(403)
     }
   })

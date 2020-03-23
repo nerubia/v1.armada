@@ -154,11 +154,17 @@ describe('Records handler: login', () => {
     expect(actual).toHaveProperty('statusCode', 400)
   })
 
-  it('should return invalid request if required password was not provided', async () => {
-    const body = { email }
+  it('should return invalid request if required email and password was not provided', async () => {
+    const body = { first_name: 'john' }
 
     const actual = await login(mockEvent(body) as APIGatewayProxyEvent)
     expect(actual).toHaveProperty('statusCode', 400)
+    expect(actual).toHaveProperty('body')
+    
+    const actual_body = JSON.parse(actual.body)
+    expect(actual_body).toHaveProperty('error', 'error-client.bad-request')
+    expect(actual_body).toHaveProperty('errors')
+    expect(actual_body.errors).toHaveLength(2)
   })
 
   it('should default to 500 status code', async () => {

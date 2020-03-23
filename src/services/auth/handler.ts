@@ -245,8 +245,24 @@ export const login = async (event: APIGatewayProxyEvent) => {
   }
 
   const { email, password } = JSON.parse(event.body)
-  if (!email || !password) {
-    return errorResponse(400, HttpStatus.E_400)
+  const errors = []
+
+  if (!email) {
+    errors.push({
+      field: 'email',
+      message: 'error.email.required',
+    })
+  }
+
+  if (!password) {
+    errors.push({
+      field: 'password',
+      message: 'error.password.required',
+    })
+  }
+
+  if (errors.length > 0) {
+    return errorResponse(400, HttpStatus.E_400, errors)
   }
 
   const db = await database.getDatabase()

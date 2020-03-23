@@ -3,6 +3,8 @@ export enum Messages {
   EXPIRED_KEY = 'error.key.expired',
   INVALID_KEY = 'error.key.invalid',
   RECORD_NOT_FOUND = 'error.incorrect.or.not.found',
+  INVALID_CREDENTIALS = 'error.invalid_credentials',
+  UNVERIFIED_EMAIL = 'error.unverified_email',
 }
 
 export interface AuthHeaders {

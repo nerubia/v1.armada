@@ -13,9 +13,26 @@ export const spyFindUsers = jest.fn(creds => {
   if (creds.email === 'expired-key@test.me') {
     return [{ id: 1, email: creds.email, registered_at: '2018-08-18 10:00:00' }]
   }
+  if (creds.email === 'unverified@test.me') {
+    return [
+      {
+        id: 1,
+        email,
+        registered_at: [date, time].join(' '),
+        is_activated: false,
+      },
+    ]
+  }
 
   return creds.email === email
-    ? [{ id: 1, email, registered_at: [date, time].join(' ') }]
+    ? [
+        {
+          id: 1,
+          email,
+          registered_at: [date, time].join(' '),
+          is_activated: true,
+        },
+      ]
     : []
 })
 

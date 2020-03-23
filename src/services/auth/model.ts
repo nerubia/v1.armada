@@ -112,9 +112,16 @@ export const login = async (email: string, password: string, db: Database) => {
     password_hash: hash(password),
   })
 
+  // validate login credentials
   if (records.length != 1) {
-    throw { message: Messages.RECORD_NOT_FOUND, status: 403 }
+    throw { message: Messages.INVALID_CREDENTIALS, status: 403 }
   }
+
+  // validate email verified
+  if (!records[0].is_activated) {
+    throw { message: Messages.UNVERIFIED_EMAIL, status: 403 }
+  }
+
   const logged_in_at = new Date().toISOString()
   const kasl_key = hash(`${records[0].email}${logged_in_at}`)
 
