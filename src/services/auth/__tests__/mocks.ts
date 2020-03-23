@@ -6,7 +6,7 @@ export const spyFindToken = jest.fn(({ client_id, client_secret }) => {
   return client_id === 'valid id' && client_secret === 'valid secret'
 })
 
-export const spyFindUsers = jest.fn(creds => {
+export const spyFindUsers = jest.fn((creds) => {
   if (creds.email === 'error@test.me') throw Error('Test error')
   const [date, ttz] = new Date().toISOString().split('T')
   const time = ttz.substr(0, 8)

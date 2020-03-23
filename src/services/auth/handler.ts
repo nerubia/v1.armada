@@ -157,11 +157,11 @@ export const create = async (event: APIGatewayProxyEvent) => {
           async: true,
           message,
         },
-        results => {
+        (results) => {
           console.log(results)
           resolve(results)
         },
-        error => {
+        (error) => {
           console.log(error)
           reject(error)
         },
