@@ -1,7 +1,8 @@
 import { Database } from 'massive'
-import { create, login, verifyClient, activate } from '../model'
-import { email, spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
+import { activate, create, login, verifyClient } from '../model'
+import { email, test_at, spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 import { hash } from '../hasher'
+import { Messages } from '../types'
 
 jest.mock('axios')
 jest.mock('@g-six/swiss-knife')
@@ -41,7 +42,7 @@ const happy_user = {
 
 const existing_user = {
   ...happy_user,
-  email: 'test@email.me,'
+  email: 'test@email.me'
 }
 
 describe('create', () => {
@@ -56,15 +57,16 @@ describe('create', () => {
     expect(actual.registered_at.substr(12)).toEqual([date, time].join(' ').substr(12))
   })
   it(`should throw 400 on existing record`, async () => {
+    let error
     try {
       await create(
         existing_user,
         mock_db,
       )
     } catch (e) {
-      console.log(existing_user, e.message)
-      expect(e).toHaveProperty('status', 400)
+      error = e
     }
+    expect(error).toHaveProperty('message', Messages.EMAIL_TAKEN)
   })
 })
 
@@ -96,9 +98,7 @@ describe('login', () => {
 
 describe('activate', () => {
   it(`should activate on valid link/key`, async () => {
-    const [date, ttz] = new Date().toISOString().split('T')
-    const time = ttz.substr(0, 8)
-    const actual = await activate(email, hash([date, time].join(' ')), mock_db)
+    const actual = await activate(email, hash(test_at), mock_db)
     expect(actual['kasl-key'].length).toEqual(44)
     expect(actual).toHaveProperty('logged_in_at')
   })

@@ -2,6 +2,7 @@ export enum Messages {
   EMAIL_TAKEN = 'error.email.taken',
   EXPIRED_KEY = 'error.key.expired',
   INVALID_KEY = 'error.key.invalid',
+  INCORRECT_PASSWORD_CONFIRMATION = 'error.password_confirmation.mismatch',
   RECORD_NOT_FOUND = 'error.incorrect.or.not.found',
   INVALID_CREDENTIALS = 'error.invalid_credentials',
   UNVERIFIED_EMAIL = 'error.unverified_email',
@@ -30,6 +31,7 @@ export interface User {
   is_activated: boolean
   is_receiving_newsletter?: boolean
   registered_at: string
+  reset_requested_at?: string
   logged_in_at?: string
   created_at: string
   updated_at?: string

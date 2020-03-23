@@ -1,16 +1,8 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import { create, index } from '../handler'
+import { create } from '../handler'
 import { spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
 process.env.APP_SECRET = 'test'
-
-describe('Records handler: index', () => {
-  it('should return results', async () => {
-    const { body } = await index()
-    const { version } = JSON.parse(body)
-    expect(version).toEqual('0.0.4')
-  })
-})
 
 jest.mock('mandrill-api')
 

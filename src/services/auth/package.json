@@ -1,6 +1,6 @@
 {
   "name": "armada-auth",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Armory auth microservice",
   "main": "handler.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "dependencies": {
     "@g-six/kastle-router": "^0.1.6",
     "@g-six/swiss-knife": "^0.1.9",
-    "aws-sdk": "^2.641.0",
+    "aws-sdk": "^2.643.0",
     "axios": "^0.19.2",
     "mandrill-api": "^1.0.45",
     "massive": "^6.2.0",
@@ -25,13 +25,13 @@
     "@types/lodash": "^4.14.149",
     "@types/mandrill-api": "^1.0.30",
     "@types/massive": "^5.4.3",
-    "@types/node": "^13.9.1",
+    "@types/node": "^13.9.3",
     "@types/redis": "^2.8.16",
     "lodash": "^4.17.15",
-    "serverless": "^1.66.0",
+    "serverless": "^1.67.0",
     "serverless-plugin-typescript": "^1.1.9",
     "serverless-pseudo-parameters": "^2.5.0",
-    "ts-loader": "^6.2.1",
+    "ts-loader": "^6.2.2",
     "typescript": "^3.8.3"
   },
   "author": "Modified by g-six based on serverless-plugin-typescript",

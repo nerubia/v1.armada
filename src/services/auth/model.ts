@@ -14,44 +14,6 @@ export const verifyClient = async (
   return !!token
 }
 
-export const create = async (record: Params, db: Database) => {
-  const [date, ttz] = new Date().toISOString().split('T')
-  const time = ttz.substr(0, 8)
-  const tables = await db.listTables()
-
-  /* istanbul ignore else */
-  if (tables.indexOf('users') >= 0) {
-    const records = await db.users.findDoc(pick(record, ['email']))
-    console.log(records, pick(record, ['email']))
-    if (records.length >= 1) {
-      throw { message: Messages.EMAIL_TAKEN, status: 400 }
-    }
-  }
-
-  const user: User = await db.saveDoc('users', {
-    email: record.email,
-    first_name: record.first_name,
-    last_name: record.last_name,
-    password_hash: hash(record.password),
-    is_activated: false,
-    registered_at: [date, time].join(' '),
-    is_receiving_newsletter: record.is_receiving_newsletter,
-  })
-  const activation_link = hash([date, time].join(' '))
-
-  return {
-    ...pick(user, [
-      'id',
-      'email',
-      'first_name',
-      'last_name',
-      'created_at',
-      'registered_at',
-    ]),
-    activation_link,
-  }
-}
-
 export const activate = async (
   email: string,
   activation_key: string,
@@ -106,6 +68,44 @@ export const activate = async (
   return results
 }
 
+export const create = async (record: Params, db: Database) => {
+  const [date, ttz] = new Date().toISOString().split('T')
+  const time = ttz.substr(0, 8)
+  const tables = await db.listTables()
+
+  /* istanbul ignore else */
+  if (tables.indexOf('users') >= 0) {
+    const records = await db.users.findDoc({ email: record.email })
+
+    if (records.length >= 1) {
+      throw { message: Messages.EMAIL_TAKEN, status: 400 }
+    }
+  }
+
+  const user: User = await db.saveDoc('users', {
+    email: record.email,
+    first_name: record.first_name,
+    last_name: record.last_name,
+    password_hash: hash(record.password),
+    is_activated: false,
+    registered_at: [date, time].join(' '),
+    is_receiving_newsletter: record.is_receiving_newsletter,
+  })
+  const activation_link = hash([date, time].join(' '))
+
+  return {
+    ...pick(user, [
+      'id',
+      'email',
+      'first_name',
+      'last_name',
+      'created_at',
+      'registered_at',
+    ]),
+    activation_link,
+  }
+}
+
 export const login = async (email: string, password: string, db: Database) => {
   const records = await db.users.findDoc({
     email,
@@ -137,6 +137,54 @@ export const login = async (email: string, password: string, db: Database) => {
   ]) as unknown) as Results
 
   results['kasl-key'] = kasl_key
+
+  return results
+}
+
+export const resetPassword = async (
+  email: string,
+  reset_key: string,
+  new_password: string,
+  confirm_password: string,
+  db: Database,
+) => {
+  if (new_password != confirm_password) {
+    throw { message: Messages.INCORRECT_PASSWORD_CONFIRMATION, status: 403 }
+  }
+
+  const records = await db.users.findDoc({ email })
+
+  if (records.length != 1) {
+    throw { message: HttpStatus.E_403, status: 403 }
+  }
+
+  const [user] = records
+
+  if (!user.reset_requested_at) {
+    throw { message: Messages.INVALID_KEY, status: 403 }
+  }
+
+  const [date, ttz] = `${user.reset_requested_at}`.split(' ')
+  const time = ttz.substr(0, 8)
+  const compare = hash([date, time].join(' '))
+
+  if (compare != reset_key) {
+    throw { message: Messages.INVALID_KEY, status: 403 }
+  }
+
+  const reset_requested_at = new Date(user.reset_requested_at)
+  const now = new Date()
+
+  /* istanbul ignore else */
+  if ((now.getTime() - reset_requested_at.getTime()) / 60 / 60 / 1000 >= 6) {
+    throw { message: Messages.EXPIRED_KEY, status: 403 }
+  }
+
+  const updated = await db.users.updateDoc(user.id, {
+    password_hash: hash(new_password),
+  })
+
+  const results = (pick(updated, ['id', 'email']) as unknown) as Results
 
   return results
 }

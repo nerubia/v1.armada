@@ -12,6 +12,7 @@ import {
   activate as activateUser,
   create as createRecord,
   login as loginUser,
+  resetPassword as resetUserPassword,
   verifyClient,
 } from './model'
 import { Response } from './types'
@@ -41,6 +42,51 @@ export const index = async () => {
       2,
     ),
   }
+}
+
+export const activate = async (event: APIGatewayProxyEvent) => {
+  let response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  if (!event.body || event.body === '{}') {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const { email, activation_key } = JSON.parse(event.body)
+  if (!email || !activation_key) {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const db = await database.getDatabase()
+
+  try {
+    const results = await activateUser(email, activation_key, db)
+    response.statusCode = 200
+    response.headers['kasl-key'] = results['kasl-key']
+
+    response.body = JSON.stringify(
+      {
+        data: pick(results, [
+          'id',
+          'email',
+          'created_at',
+          'registered_at',
+          'updated_at',
+        ]),
+      },
+      null,
+      2,
+    )
+  } catch (e) {
+    response = errorResponse(e.status, e.message)
+  }
+
+  await database.disconnectDb()
+
+  return response
 }
 
 export const create = async (event: APIGatewayProxyEvent) => {
@@ -158,7 +204,6 @@ export const create = async (event: APIGatewayProxyEvent) => {
           message,
         },
         (results) => {
-          console.log(results)
           resolve(results)
         },
         (error) => {
@@ -185,51 +230,6 @@ export const create = async (event: APIGatewayProxyEvent) => {
   }
 
   await database.disconnectDb()
-  return response
-}
-
-export const activate = async (event: APIGatewayProxyEvent) => {
-  let response: Response = {
-    body: '',
-    headers,
-    statusCode: 500,
-  }
-
-  if (!event.body || event.body === '{}') {
-    return errorResponse(400, HttpStatus.E_400)
-  }
-
-  const { email, activation_key } = JSON.parse(event.body)
-  if (!email || !activation_key) {
-    return errorResponse(400, HttpStatus.E_400)
-  }
-
-  const db = await database.getDatabase()
-
-  try {
-    const results = await activateUser(email, activation_key, db)
-    response.statusCode = 200
-    response.headers['kasl-key'] = results['kasl-key']
-
-    response.body = JSON.stringify(
-      {
-        data: pick(results, [
-          'id',
-          'email',
-          'created_at',
-          'registered_at',
-          'updated_at',
-        ]),
-      },
-      null,
-      2,
-    )
-  } catch (e) {
-    response = errorResponse(e.status, e.message)
-  }
-
-  await database.disconnectDb()
-
   return response
 }
 
@@ -275,6 +275,88 @@ export const login = async (event: APIGatewayProxyEvent) => {
     response.body = JSON.stringify(
       {
         data: pick(results, ['id', 'email']),
+      },
+      null,
+      2,
+    )
+  } catch (e) {
+    response = errorResponse(e.status, e.message)
+  }
+
+  await database.disconnectDb()
+
+  return response
+}
+
+export const resetPassword = async (event: APIGatewayProxyEvent) => {
+  let response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  if (!event.body || event.body === '{}') {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const { email, reset_key, password, confirm_password } = JSON.parse(
+    event.body,
+  )
+  const errors = []
+
+  if (!email) {
+    errors.push({
+      field: 'email',
+      message: 'error.email.required',
+    })
+  }
+  if (!reset_key) {
+    errors.push({
+      field: 'reset_key',
+      message: 'error.reset_key.required',
+    })
+  }
+
+  if (!password) {
+    errors.push({
+      field: 'password',
+      message: 'error.password.required',
+    })
+  }
+
+  if (confirm_password != password) {
+    errors.push({
+      field: 'confirm_password',
+      message: 'error.confirm_password.invalid',
+    })
+  }
+
+  if (errors.length > 0) {
+    return errorResponse(400, HttpStatus.E_400, errors)
+  }
+
+  const db = await database.getDatabase()
+
+  try {
+    const results = await resetUserPassword(
+      email,
+      reset_key,
+      password,
+      confirm_password,
+      db,
+    )
+    response.statusCode = 200
+    response.headers['kasl-key'] = results['kasl-key']
+
+    response.body = JSON.stringify(
+      {
+        data: pick(results, [
+          'id',
+          'email',
+          'created_at',
+          'registered_at',
+          'updated_at',
+        ]),
       },
       null,
       2,
