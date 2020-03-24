@@ -13,8 +13,14 @@ import {
   create as createRecord,
   login as loginUser,
   verifyClient,
+  forgotPassword,
 } from './model'
-import { Response } from './types'
+import {
+  Response,
+  EmailRecipient,
+  EmailTemplates,
+  EmailTemplateParams,
+} from './types'
 
 const errorResponse = (code: number, error: string, errors?: {}): Response => ({
   body: JSON.stringify(
@@ -28,6 +34,51 @@ const errorResponse = (code: number, error: string, errors?: {}): Response => ({
   headers,
   statusCode: code || 500,
 })
+
+const sendMail = async (
+  recipient: EmailRecipient,
+  template: EmailTemplates,
+  params: EmailTemplateParams[],
+) => {
+  const { MANDRILL_API_KEY } = process.env
+  const mandrill_client = new Mandrill(MANDRILL_API_KEY as string)
+  const template_name = template
+  const template_content = params
+
+  const message = {
+    to: [
+      {
+        email: recipient.email,
+        name: [recipient.first_name, recipient.last_name].join(' '),
+        type: 'to',
+      },
+    ],
+    global_merge_vars: template_content,
+  }
+
+  await new Promise((resolve, reject) => {
+    mandrill_client.messages.sendTemplate(
+      {
+        template_name,
+        template_content,
+        async: true,
+        message,
+      },
+      results => {
+        console.log(results)
+        resolve(results)
+      },
+      error => {
+        /* istanbul ignore next */
+        console.log(error)
+        /* istanbul ignore next */
+        reject(error)
+      },
+    )
+  })
+
+  return true
+}
 
 export const index = async () => {
   return {
@@ -124,9 +175,6 @@ export const create = async (event: APIGatewayProxyEvent) => {
     const payload = JSON.parse(event.body)
     const data = await createRecord(payload, db)
 
-    const { MANDRILL_API_KEY } = process.env
-    const mandrill_client = new Mandrill(MANDRILL_API_KEY as string)
-    const template_name = 'email-validation'
     const template_content = [
       {
         name: 'first_name',
@@ -138,35 +186,7 @@ export const create = async (event: APIGatewayProxyEvent) => {
       },
     ]
 
-    const message = {
-      to: [
-        {
-          email: data.email,
-          name: [data.first_name, data.last_name].join(' '),
-          type: 'to',
-        },
-      ],
-      global_merge_vars: template_content,
-    }
-
-    await new Promise((resolve, reject) => {
-      mandrill_client.messages.sendTemplate(
-        {
-          template_name,
-          template_content,
-          async: true,
-          message,
-        },
-        (results) => {
-          console.log(results)
-          resolve(results)
-        },
-        (error) => {
-          console.log(error)
-          reject(error)
-        },
-      )
-    })
+    await sendMail(data, EmailTemplates.EMAIL_VERIFICATION, template_content)
 
     response.statusCode = 200
 
@@ -281,6 +301,69 @@ export const login = async (event: APIGatewayProxyEvent) => {
     )
   } catch (e) {
     response = errorResponse(e.status, e.message)
+  }
+
+  await database.disconnectDb()
+
+  return response
+}
+
+export const forgot = async (event: APIGatewayProxyEvent) => {
+  let response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  if (!event.body || event.body === '{}') {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const { email } = JSON.parse(event.body)
+  const errors = []
+
+  if (!email) {
+    errors.push({
+      field: 'email',
+      message: 'error.email.required',
+    })
+  }
+
+  if (errors.length > 0) {
+    return errorResponse(400, HttpStatus.E_400, errors)
+  }
+
+  const db = await database.getDatabase()
+
+  try {
+    const user = await forgotPassword(email, db)
+
+    const template_content = [
+      {
+        name: 'first_name',
+        content: user.first_name,
+      },
+      {
+        name: 'reset_link',
+        content: `${event.headers.Referer}?k=${user.reset_key}`,
+      },
+    ]
+    await sendMail(user, EmailTemplates.FORGOT_PASSWORD, template_content)
+
+    response.statusCode = 200
+
+    response.body = JSON.stringify(
+      {
+        data: pick(user, ['email', 'reset_requested_at']),
+      },
+      null,
+      2,
+    )
+  } catch (e) {
+    response = errorResponse(e.status, e.stack)
+    if (e.message) {
+      response = errorResponse(e.status, e.message)
+    }
   }
 
   await database.disconnectDb()
