@@ -106,6 +106,33 @@ export const create = async (record: Params, db: Database) => {
   }
 }
 
+export const forgotPassword = async (email: string, db: Database) => {
+  const [date, ttz] = new Date().toISOString().split('T')
+  const time = ttz.substr(0, 8)
+
+  const records = await db.users.findDoc({ email })
+  if (records.length != 1) {
+    throw { message: Messages.USER_NOT_FOUND, status: 400 }
+  }
+
+  const user = await db.users.updateDoc(records[0].id, {
+    reset_requested_at: [date, time].join(' '),
+  })
+  const reset_key = hash([date, time].join(' '))
+
+  return {
+    ...pick(user, [
+      'id',
+      'email',
+      'first_name',
+      'last_name',
+      'created_at',
+      'reset_requested_at',
+    ]),
+    reset_key,
+  }
+}
+
 export const login = async (email: string, password: string, db: Database) => {
   const records = await db.users.findDoc({
     email,

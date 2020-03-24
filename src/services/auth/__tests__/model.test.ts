@@ -1,5 +1,5 @@
 import { Database } from 'massive'
-import { activate, create, login, verifyClient } from '../model'
+import { activate, create, forgotPassword, login, verifyClient } from '../model'
 import { email, test_at, spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 import { hash } from '../hasher'
 import { Messages } from '../types'
@@ -126,6 +126,33 @@ describe('activate', () => {
       expect(actual).toHaveProperty('is_activated', false)
     } catch (e) {
       expect(e.status).toEqual(403)
+    }
+  })
+})
+
+describe('forgot password', () => {
+  it(`should be able to generate reset key for forgot password`, async () => {
+    const actual = await forgotPassword(
+      email,
+      mock_db,
+    )
+    expect(actual).toHaveProperty('email', email)
+    expect(actual).toHaveProperty('reset_requested_at')
+
+    const [date, ttz] = new Date().toISOString().split('T')
+    const time = ttz.substr(0, 8)
+    expect(actual.reset_requested_at.substr(12)).toEqual([date, time].join(' ').substr(12))
+  })
+
+  it(`should throw 400 on non existing user email`, async () => {
+    try {
+      await forgotPassword(
+        'xxx@test.me',
+        mock_db,
+      )
+    } catch (e) {
+      expect(e).toHaveProperty('status', 400)
+      expect(e).toHaveProperty('message', 'error.user_not_found')
     }
   })
 })

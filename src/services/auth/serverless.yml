@@ -74,3 +74,10 @@ functions:
           method: post
           cors: true
           path: auth/login
+  forgot:
+    handler: handler.forgot
+    events:
+      - http:
+          method: post
+          cors: true
+          path: auth/forgot-password

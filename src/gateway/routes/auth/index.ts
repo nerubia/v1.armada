@@ -4,7 +4,13 @@ import {
   KastleRouter,
   KastleRoutes,
 } from '@g-six/kastle-router'
-import { activate, create, login, resetPassword } from 'services/auth/handler'
+import {
+  activate,
+  create,
+  forgot,
+  login,
+  resetPassword,
+} from 'services/auth/handler'
 
 const baseUrl = '/auth'
 
@@ -28,6 +34,11 @@ const routes: KastleRoutes = {
     method: MethodTypes.Post,
     route: '/activate',
     middlewares: [lambdaMiddleware(activate)],
+  },
+  forgot: {
+    method: MethodTypes.Post,
+    route: '/forgot-password',
+    middlewares: [lambdaMiddleware(forgot)],
   },
 }
 

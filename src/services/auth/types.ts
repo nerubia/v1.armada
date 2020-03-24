@@ -6,11 +6,28 @@ export enum Messages {
   RECORD_NOT_FOUND = 'error.incorrect.or.not.found',
   INVALID_CREDENTIALS = 'error.invalid_credentials',
   UNVERIFIED_EMAIL = 'error.unverified_email',
+  USER_NOT_FOUND = 'error.user_not_found',
 }
 
 export interface AuthHeaders {
   'client-id': string
   'client-secret': string
+}
+
+export interface EmailRecipient {
+  email: string
+  first_name: string
+  last_name: string
+}
+
+export enum EmailTemplates {
+  EMAIL_VERIFICATION = 'email-validation',
+  FORGOT_PASSWORD = 'forgot-password',
+}
+
+export interface EmailTemplateParams {
+  name: string
+  content: string
 }
 
 export interface Params {
@@ -24,16 +41,16 @@ export interface Params {
 
 export interface User {
   id?: number
+  created_at: string
   email: string
   first_name: string
+  is_activated: boolean
   last_name: string
   password_hash: string
-  is_activated: boolean
-  is_receiving_newsletter?: boolean
   registered_at: string
-  reset_requested_at?: string
+  is_receiving_newsletter?: boolean
   logged_in_at?: string
-  created_at: string
+  reset_requested_at?: string
   updated_at?: string
 }
 

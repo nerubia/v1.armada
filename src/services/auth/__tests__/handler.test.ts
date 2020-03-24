@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import { activate, create, index, login, resetPassword } from '../handler'
+import { activate, create, forgot, index, login, resetPassword } from '../handler'
 import { hash } from '../hasher'
 import { email, test_at, spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
@@ -248,6 +248,63 @@ describe('Records handler: resetPassword', () => {
 
       expect(actual).toHaveProperty('statusCode', 400)
     })
+  })
+})
+
+describe('Records handler: forgot password', () => {
+  it('should generate reset key', async () => {
+    const body = { email }
+
+    const actual = await forgot(mockEvent(body) as APIGatewayProxyEvent)
+    expect(actual).toHaveProperty('statusCode', 200)
+    expect(actual).toHaveProperty('body')
+
+    const actual_body = JSON.parse(actual.body)
+    expect(actual_body).toHaveProperty('data')
+
+    expect(actual_body.data).toHaveProperty('email', email)
+    expect(actual_body.data).toHaveProperty('reset_requested_at')
+  })
+
+  it('should handle general error', async () => {
+    const body = {
+      email: 'error@test.me',
+      reset_key: 'asdasd',
+      password: 'test123',
+      confirm_password: 'test123',
+    }
+
+    const actual = await forgot(mockEvent(
+      body,
+    ) as APIGatewayProxyEvent)
+
+    expect(actual).toHaveProperty('statusCode', 500)
+  })
+
+  it('should return invalid request on empty payload', async () => {
+    const body = {}
+
+    const actual = await forgot(mockEvent(body) as APIGatewayProxyEvent)
+
+    expect(actual).toHaveProperty('statusCode', 400)
+    expect(actual).toHaveProperty('body')
+
+    const actual_body = JSON.parse(actual.body)
+    expect(actual_body).toHaveProperty('error', 'error-client.bad-request')
+  })
+
+  it('should return invalid request if required email was not provided with field specific errors', async () => {
+    const body = { first_name: 'asdasda' }
+
+    const actual = await forgot(mockEvent(body) as APIGatewayProxyEvent)
+
+    expect(actual).toHaveProperty('statusCode', 400)
+    expect(actual).toHaveProperty('body')
+
+    const actual_body = JSON.parse(actual.body)
+    expect(actual_body).toHaveProperty('error', 'error-client.bad-request')
+    expect(actual_body).toHaveProperty('errors')
+    expect(actual_body.errors).toHaveLength(1)
   })
 })
 
