@@ -28,6 +28,8 @@
     "@types/massive": "^5.4.3",
     "@types/node": "^13.11.1",
     "@types/redis": "^2.8.17",
+    "debug": "^4.1.1",
+    "minimist": "^1.2.5",
     "serverless": "^1.67.3",
     "serverless-offline": "^6.1.4",
     "serverless-plugin-typescript": "^1.1.9",
