@@ -44,40 +44,111 @@ functions:
     events:
       - http:
           method: get
-          cors: true
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: auth
   activate:
     handler: handler.activate
     events:
       - http:
           method: post
-          cors: true
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: auth/activate
   create:
     handler: handler.create
     events:
       - http:
           method: post
-          cors: true
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: auth/sign-up
   reset_password:
     handler: handler.resetPassword
     events:
       - http:
           method: put
-          cors: true
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: auth/reset-password
   login:
     handler: handler.login
     events:
       - http:
           method: post
-          cors: true
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: auth/login
   forgot:
     handler: handler.forgot
     events:
       - http:
           method: post
-          cors: true
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           path: auth/forgot-password
+
+  resendActivation:
+    handler: handler.resendActivation
+    events:
+      - http:
+          method: post
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          path: auth/resend-activation

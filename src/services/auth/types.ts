@@ -1,12 +1,28 @@
-export enum Messages {
+export enum ErrorMessages {
   EMAIL_TAKEN = 'error.email.taken',
-  EXPIRED_KEY = 'error.key.expired',
-  INVALID_KEY = 'error.key.invalid',
-  INCORRECT_PASSWORD_CONFIRMATION = 'error.password_confirmation.mismatch',
+  EMAIL_REQUIRED = 'error.email.required',
+  EMAIL_INVALID = 'error.email.invalid',
+  EMAIL_UNVERIFIED = 'error.email.unverified',
+  FIRST_NAME_REQUIRED = 'error.first_name.required',
+  FIRST_NAME_INVALID = 'error.first_name.invalid',
+  LAST_NAME_REQUIRED = 'error.last_name.required',
+  LAST_NAME_INVALID = 'error.last_name.invalid',
+  PASSWORD_WEAK = 'error.password.weak',
+  PASSWORD_REQUIRED = 'error.password.required',
+  PASSWORD_INVALID = 'error.password.invalid',
+  CONFIRM_PASSWORD_MISMATCH = 'error.confirm_password.mismatch',
+  CONFIRM_PASSWORD_REQUIRED = 'error.confirm_password.required',
+  CONFIRM_PASSWORD_INVALID = 'error.confirm_password.invalid',
+  KEY_EXPIRED = 'error.key.expired',
+  KEY_INVALID = 'error.key.invalid',
   RECORD_NOT_FOUND = 'error.incorrect.or.not.found',
   INVALID_CREDENTIALS = 'error.invalid_credentials',
-  UNVERIFIED_EMAIL = 'error.unverified_email',
   USER_NOT_FOUND = 'error.user_not_found',
+  BAD_REQUEST = 'error-client.bad-request',
+}
+
+export enum SuccessMessages {
+  FORGOT_PASSWORD_CONFIRMATION = 'success.forgot_password_confirmation',
 }
 
 export interface AuthHeaders {
@@ -30,7 +46,7 @@ export interface EmailTemplateParams {
   content: string
 }
 
-export interface Params {
+export interface SignupParams {
   email: string
   first_name: string
   last_name: string
@@ -38,6 +54,15 @@ export interface Params {
   confirm_password: string
   is_receiving_newsletter?: boolean
 }
+
+export interface ResetPasswordParams {
+  id: number
+  reset_key: string
+  password: string
+  confirm_password: string
+}
+
+export type InputParams = SignupParams | ResetPasswordParams
 
 export interface User {
   id?: number

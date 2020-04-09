@@ -1,8 +1,9 @@
 import { Database } from 'massive'
-import { activate, create, forgotPassword, login, verifyClient } from '../model'
+import { activate, create, forgotPassword, login, reRegister, verifyClient } from '../model'
 import { email, test_at, spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 import { hash } from '../hasher'
-import { Messages } from '../types'
+import { ErrorMessages } from '../types'
+import { HttpStatus } from '@g-six/kastle-router'
 
 jest.mock('axios')
 jest.mock('@g-six/swiss-knife')
@@ -36,8 +37,8 @@ const happy_user = {
   email: 'test',
   first_name: 'tester',
   last_name: 'validator',
-  confirm_password: 'asd',
-  password: 'asd',
+  confirm_password: 'asdA$D123',
+  password: 'asdA$D123',
 }
 
 const existing_user = {
@@ -66,7 +67,7 @@ describe('create', () => {
     } catch (e) {
       error = e
     }
-    expect(error).toHaveProperty('message', Messages.EMAIL_TAKEN)
+    expect(error).toHaveProperty('message', ErrorMessages.EMAIL_TAKEN)
   })
 })
 
@@ -90,7 +91,7 @@ describe('login', () => {
     try {
       await login('unverified@test.me', 'asd', mock_db)
     } catch (e) {
-      expect(e.message).toEqual('error.unverified_email')
+      expect(e.message).toEqual(ErrorMessages.EMAIL_UNVERIFIED)
       expect(e.status).toEqual(403)
     }
   })
@@ -98,14 +99,14 @@ describe('login', () => {
 
 describe('activate', () => {
   it(`should activate on valid link/key`, async () => {
-    const actual = await activate(email, hash(test_at), mock_db)
+    const actual = await activate(1, hash(test_at), mock_db)
     expect(actual['kasl-key'].length).toEqual(44)
     expect(actual).toHaveProperty('logged_in_at')
   })
 
   it(`should return error 403 on invalid credentials`, async () => {
     try {
-      await activate('testing@aaa.co', hash('2018-08-18'), mock_db)
+      await activate(0, hash('2018-08-18'), mock_db)
     } catch (e) {
       expect(e.status).toEqual(403)
     }
@@ -113,7 +114,7 @@ describe('activate', () => {
 
   it(`should return error 403 on invalid key`, async () => {
     try {
-      const actual = await activate(email, hash('2018-08-18 10:00:00'), mock_db)
+      const actual = await activate(1, hash('2018-08-18 10:00:00'), mock_db)
       expect(actual).toHaveProperty('is_activated')
     } catch (e) {
       expect(e.status).toEqual(403)
@@ -122,7 +123,7 @@ describe('activate', () => {
 
   it(`should return error 403 on expired key`, async () => {
     try {
-      const actual = await activate('expired-key@test.me', hash('2018-08-18 10:00:00'), mock_db)
+      const actual = await activate(2, hash('2018-08-18 10:00:00'), mock_db)
       expect(actual).toHaveProperty('is_activated', false)
     } catch (e) {
       expect(e.status).toEqual(403)
@@ -161,5 +162,34 @@ describe('verifyClient', () => {
   it('return token on success', async () => {
     const actual = await verifyClient('valid id', 'valid secret', mock_db)
     expect(actual).toEqual(true)
+  })
+})
+
+describe('reRegister', () => {
+  it('should return 403 if user was not found', async () => {
+    try {
+      await reRegister('non-existent@test.me', mock_db)
+      expect(true).toBe(false)
+    } catch (e) {
+      expect(e.status).toEqual(403)
+      expect(e.message).toEqual(HttpStatus.E_403)
+    }
+  })
+
+  it('should return 403 if user is already activated', async () => {
+    try {
+      await reRegister(email, mock_db)
+      expect(true).toBe(false)
+    } catch (e) {
+      expect(e.status).toEqual(403)
+      expect(e.message).toEqual(HttpStatus.E_403)
+    }
+  })
+
+  it('should re-register an unverified user', async () => {
+    const user = await reRegister('unverified@test.me', mock_db)
+
+    expect(user.activation_link).toBeDefined()
+    expect(user.activation_link.length).toBe(44)
   })
 })

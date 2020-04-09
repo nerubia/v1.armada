@@ -3,46 +3,15 @@ import { create } from '../handler'
 import { spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
 process.env.APP_SECRET = 'test'
-const email = 'test@email.me'
-
-const happy_user = {
-  email: 'test2@email.me',
-  first_name: 'tes',
-  last_name: 't123',
-  password: 'test123',
-  confirm_password: 'test123',
-}
 
 describe('Records handler: create', () => {
   describe('with no valid headers', () => {
-    const headers = {
-      'client-id': 'invalid',
-      'client-secret': 'invalid',
-    }
-
-    it('should not be able to create record', async () => {
-      const body = happy_user
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-      expect(actual).toHaveProperty('statusCode', 401)
-    })
-
-    it('should return invalid request if required password was not provided', async () => {
-      const body = { email }
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-
-      expect(actual).toHaveProperty('statusCode', 400)
-    })
-
     it('should return unauthorized if client-id or secret was wrong', async () => {
-      const body = happy_user
+      process.env.CLIENT_ID = 'client id'
+      process.env.CLIENT_SECRET = 'client secret'
+      const body = {
+        some_data: '',
+      }
 
       const actual = await create(mockEvent(body, {
         'client-id': 'invalid id',

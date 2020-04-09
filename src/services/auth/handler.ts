@@ -7,12 +7,15 @@ import { APIGatewayProxyEvent } from 'aws-lambda'
 import { pick } from 'lodash'
 import { Mandrill } from 'mandrill-api'
 import version from './version'
-
+import { SuccessMessages, ErrorMessages } from './types'
+import { reset_password_schema, signup_schema } from './schema'
 import {
   activate as activateUser,
   create as createRecord,
   login as loginUser,
+  validateInput,
   resetPassword as resetUserPassword,
+  reRegister as reRegisterUser,
   verifyClient,
   forgotPassword,
 } from './model'
@@ -106,15 +109,15 @@ export const activate = async (event: APIGatewayProxyEvent) => {
     return errorResponse(400, HttpStatus.E_400)
   }
 
-  const { email, activation_key } = JSON.parse(event.body)
-  if (!email || !activation_key) {
+  const { id, activation_key } = JSON.parse(event.body)
+  if (!id || !activation_key) {
     return errorResponse(400, HttpStatus.E_400)
   }
 
   const db = await database.getDatabase()
 
   try {
-    const results = await activateUser(email, activation_key, db)
+    const results = await activateUser(id, activation_key, db)
     response.statusCode = 200
     response.headers['kasl-key'] = results['kasl-key']
 
@@ -151,51 +154,7 @@ export const create = async (event: APIGatewayProxyEvent) => {
     return errorResponse(400, HttpStatus.E_400)
   }
 
-  const {
-    email,
-    first_name,
-    last_name,
-    password,
-    confirm_password,
-  } = JSON.parse(event.body)
-  const errors = []
-
-  if (!email) {
-    errors.push({
-      field: 'email',
-      message: 'error.email.required',
-    })
-  }
-  if (!first_name) {
-    errors.push({
-      field: 'first_name',
-      message: 'error.first_name.required',
-    })
-  }
-  if (!last_name) {
-    errors.push({
-      field: 'last_name',
-      message: 'error.last_name.required',
-    })
-  }
-
-  if (!password) {
-    errors.push({
-      field: 'password',
-      message: 'error.password.required',
-    })
-  }
-
-  if (confirm_password != password) {
-    errors.push({
-      field: 'confirm_password',
-      message: 'error.confirm_password.invalid',
-    })
-  }
-
-  if (errors.length > 0) {
-    return errorResponse(400, HttpStatus.E_400, errors)
-  }
+  const payload = JSON.parse(event.body)
 
   const db = await database.getDatabase()
 
@@ -217,6 +176,12 @@ export const create = async (event: APIGatewayProxyEvent) => {
     }
   }
 
+  const validation_errors = await validateInput(payload, signup_schema)
+
+  if (validation_errors) {
+    return errorResponse(400, HttpStatus.E_400, validation_errors)
+  }
+
   try {
     const payload = JSON.parse(event.body)
     const data = await createRecord(payload, db)
@@ -228,7 +193,7 @@ export const create = async (event: APIGatewayProxyEvent) => {
       },
       {
         name: 'activation_link',
-        content: `${event.headers.Referer}?k=${data.activation_link}`,
+        content: `${event.headers.origin}/activate?k=${data.activation_link}&u=${data.id}`,
       },
     ]
 
@@ -272,14 +237,14 @@ export const login = async (event: APIGatewayProxyEvent) => {
   if (!email) {
     errors.push({
       field: 'email',
-      message: 'error.email.required',
+      message: ErrorMessages.EMAIL_REQUIRED,
     })
   }
 
   if (!password) {
     errors.push({
       field: 'password',
-      message: 'error.password.required',
+      message: ErrorMessages.PASSWORD_REQUIRED,
     })
   }
 
@@ -321,52 +286,17 @@ export const resetPassword = async (event: APIGatewayProxyEvent) => {
     return errorResponse(400, HttpStatus.E_400)
   }
 
-  const { email, reset_key, password, confirm_password } = JSON.parse(
-    event.body,
-  )
-  const errors = []
+  const payload = JSON.parse(event.body)
+  const validation_errors = await validateInput(payload, reset_password_schema)
 
-  if (!email) {
-    errors.push({
-      field: 'email',
-      message: 'error.email.required',
-    })
-  }
-  if (!reset_key) {
-    errors.push({
-      field: 'reset_key',
-      message: 'error.reset_key.required',
-    })
-  }
-
-  if (!password) {
-    errors.push({
-      field: 'password',
-      message: 'error.password.required',
-    })
-  }
-
-  if (confirm_password != password) {
-    errors.push({
-      field: 'confirm_password',
-      message: 'error.confirm_password.invalid',
-    })
-  }
-
-  if (errors.length > 0) {
-    return errorResponse(400, HttpStatus.E_400, errors)
+  if (validation_errors) {
+    return errorResponse(400, HttpStatus.E_400, validation_errors)
   }
 
   const db = await database.getDatabase()
 
   try {
-    const results = await resetUserPassword(
-      email,
-      reset_key,
-      password,
-      confirm_password,
-      db,
-    )
+    const results = await resetUserPassword(payload, db)
     response.statusCode = 200
     response.headers['kasl-key'] = results['kasl-key']
 
@@ -409,7 +339,7 @@ export const forgot = async (event: APIGatewayProxyEvent) => {
   if (!email) {
     errors.push({
       field: 'email',
-      message: 'error.email.required',
+      message: ErrorMessages.EMAIL_REQUIRED,
     })
   }
 
@@ -422,23 +352,26 @@ export const forgot = async (event: APIGatewayProxyEvent) => {
   try {
     const user = await forgotPassword(email, db)
 
-    const template_content = [
-      {
-        name: 'first_name',
-        content: user.first_name,
-      },
-      {
-        name: 'reset_link',
-        content: `${event.headers.Referer}?k=${user.reset_key}`,
-      },
-    ]
-    await sendMail(user, EmailTemplates.FORGOT_PASSWORD, template_content)
+    if (user.email) {
+      const template_content = [
+        {
+          name: 'first_name',
+          content: user.first_name,
+        },
+        {
+          name: 'reset_link',
+          content: `${event.headers.origin}/reset-password?k=${user.reset_key}&u=${user.id}`,
+        },
+      ]
+      await sendMail(user, EmailTemplates.FORGOT_PASSWORD, template_content)
+    }
 
     response.statusCode = 200
 
     response.body = JSON.stringify(
       {
-        data: pick(user, ['email', 'reset_requested_at']),
+        message: SuccessMessages.FORGOT_PASSWORD_CONFIRMATION,
+        data: pick(user, ['reset_requested_at']),
       },
       null,
       2,
@@ -449,6 +382,67 @@ export const forgot = async (event: APIGatewayProxyEvent) => {
     if (e.message) {
       response = errorResponse(e.status, e.message)
     }
+  }
+
+  await database.disconnectDb()
+
+  return response
+}
+
+export const resendActivation = async (event: APIGatewayProxyEvent) => {
+  let response: Response = {
+    body: '',
+    headers,
+    statusCode: 500,
+  }
+
+  if (!event.body || event.body === '{}') {
+    return errorResponse(400, HttpStatus.E_400)
+  }
+
+  const { email } = JSON.parse(event.body)
+  const errors = []
+
+  if (!email) {
+    errors.push({
+      field: 'email',
+      message: ErrorMessages.EMAIL_REQUIRED,
+    })
+  }
+
+  if (errors.length > 0) {
+    return errorResponse(400, HttpStatus.E_400, errors)
+  }
+
+  const db = await database.getDatabase()
+
+  try {
+    const data = await reRegisterUser(email, db)
+
+    const template_content = [
+      {
+        name: 'first_name',
+        content: data.first_name,
+      },
+      {
+        name: 'activation_link',
+        content: `${event.headers.origin}/activate?k=${data.activation_link}&u=${data.id}`,
+      },
+    ]
+
+    await sendMail(data, EmailTemplates.EMAIL_VERIFICATION, template_content)
+
+    response.statusCode = 200
+
+    response.body = JSON.stringify(
+      {
+        data: pick(data, ['id', 'email']),
+      },
+      null,
+      2,
+    )
+  } catch (e) {
+    response = errorResponse(e.status, e.message)
   }
 
   await database.disconnectDb()

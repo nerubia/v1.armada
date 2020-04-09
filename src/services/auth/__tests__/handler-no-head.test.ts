@@ -7,6 +7,48 @@ process.env.APP_SECRET = 'test'
 jest.mock('mandrill-api')
 
 describe('Records handler: create', () => {
+  describe('with no headers', () => {
+    it('should return invalid request on empty secret', async () => {
+      const headers = {}
+      const body = {}
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+
+      expect(actual).toHaveProperty('statusCode', 400)
+    })
+
+    it('should return invalid request on empty secret', async () => {
+      const headers = {
+        'client-id': 'valid id',
+      }
+      const body = {}
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+
+      expect(actual).toHaveProperty('statusCode', 400)
+    })
+
+    it('should return invalid request on empty id', async () => {
+      const headers = {
+        'client-secret': 'valid secret',
+      }
+      const body = {}
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+
+      expect(actual).toHaveProperty('statusCode', 400)
+    })
+  })
+
   describe('with no valid headers', () => {
     const headers = {
       'client-id': '',
@@ -22,23 +64,6 @@ describe('Records handler: create', () => {
       ) as APIGatewayProxyEvent)
 
       expect(actual).toHaveProperty('statusCode', 400)
-    })
-
-    it('should default to 500 status code', async () => {
-      const body = {
-        email: 'error@test.me',
-        first_name: 'error',
-        last_name: 'self',
-        password: 'test123',
-        confirm_password: 'test123',
-      }
-
-      const actual = await create(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
-
-      expect(actual).toHaveProperty('statusCode', 500)
     })
   })
 })

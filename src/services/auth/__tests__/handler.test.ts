@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import { activate, create, forgot, index, login, resetPassword } from '../handler'
+import { activate, create, forgot, index, login, resendActivation, resetPassword } from '../handler'
 import { hash } from '../hasher'
 import { email, test_at, spyUpdateDoc, spyFindToken, spyFindUsers } from './mocks'
 
@@ -9,7 +9,7 @@ describe('Records handler: index', () => {
   it('should return results', async () => {
     const { body } = await index()
     const { version } = JSON.parse(body)
-    expect(version).toEqual('0.0.5')
+    expect(version).toEqual('0.0.6')
   })
 })
 
@@ -29,11 +29,43 @@ const happy_user = {
   email: 'test2@email.me',
   first_name: 'tes',
   last_name: 't123',
-  password: 'test123',
-  confirm_password: 'test123',
+  password: 'te$T!ng1x2Y3',
+  confirm_password: 'te$T!ng1x2Y3',
 }
 
 describe('Records handler: create', () => {
+  process.env.CLIENT_ID = 'valid id'
+  process.env.CLIENT_SECRET = 'valid secret'
+
+  describe('with empty headers', () => {
+    const headers = {}
+
+    it('should create record', async () => {
+      const body = happy_user
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+      expect(actual).toHaveProperty('statusCode', 200)
+    })
+
+    it('should not create record on weak password', async () => {
+      const body = {
+        ...happy_user,
+        password: 'weakpass',
+        confirm_password: 'weakpass',
+      }
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+
+      expect(JSON.parse(actual.body).errors[0]).toHaveProperty('message', 'error.password.weak')
+    })
+  })
+
   describe('with valid headers', () => {
     const headers = {
       'client-id': 'valid id',
@@ -93,12 +125,26 @@ describe('Records handler: create', () => {
 
       expect(actual).toHaveProperty('statusCode', 401)
     })
+
+    it('should handle error 500', async () => {
+      const body = {
+        ...happy_user,
+        email: 'error@test.me'
+      }
+
+      const actual = await create(mockEvent(
+        body,
+        headers,
+      ) as APIGatewayProxyEvent)
+
+      expect(actual).toHaveProperty('statusCode', 500)
+    })
   })
 })
 
 describe('Records handler: activate', () => {
   it('should activate valid user and update timestamp', async () => {
-    const body = { email, activation_key: hash(test_at) }
+    const body = { id: 1, activation_key: hash(test_at) }
 
     const actual = await activate(mockEvent(body) as APIGatewayProxyEvent)
 
@@ -113,21 +159,21 @@ describe('Records handler: activate', () => {
   })
 
   it('should return invalid request if activation_key was not provided', async () => {
-    const body = { email }
+    const body = { id: 1 }
 
     const actual = await activate(mockEvent(body) as APIGatewayProxyEvent)
     expect(actual).toHaveProperty('statusCode', 400)
   })
 
   it('should return invalid request if activation_key invalid', async () => {
-    const body = { email, activation_key: hash('2018-08-19 10:00:00') }
+    const body = { id: 1, activation_key: hash('2018-08-19 10:00:00') }
 
     const actual = await activate(mockEvent(body) as APIGatewayProxyEvent)
     expect(actual).toHaveProperty('statusCode', 403)
   })
 
   it('should default to 500 status code', async () => {
-    const body = { email: 'error@test.me', activation_key: 'test123' }
+    const body = { id: -1, activation_key: 'test123' }
 
     const actual = await activate(mockEvent(body) as APIGatewayProxyEvent)
 
@@ -137,7 +183,7 @@ describe('Records handler: activate', () => {
 
 describe('Records handler: login', () => {
   it('should log valid user in and update timestamp', async () => {
-    const body = { email, password: 'test123' }
+    const body = { email, password: 'te$T!ng123' }
 
     const actual = await login(mockEvent(body) as APIGatewayProxyEvent)
 
@@ -165,7 +211,7 @@ describe('Records handler: login', () => {
   })
 
   it('should default to 500 status code', async () => {
-    const body = { email: 'error@test.me', password: 'test123' }
+    const body = { email: 'error@test.me', password: 'te$T!ng123' }
 
     const actual = await login(mockEvent(body) as APIGatewayProxyEvent)
 
@@ -177,21 +223,14 @@ describe('Records handler: resetPassword', () => {
   describe('with valid headers', () => {
     it('should reset password', async () => {
       const body = {
-        ...happy_user,
-        email,
+        id: 1,
         reset_key: hash(test_at),
-        password: 'passtest123',
-        confirm_password: 'passtest123'
-      }
-
-      const headers = {
-        'client-id': 'valid id',
-        'client-secret': 'valid secret',
+        password: 'te$T!ng123',
+        confirm_password: 'te$T!ng123'
       }
 
       const actual = await resetPassword(mockEvent(
         body,
-        headers,
       ) as APIGatewayProxyEvent)
 
       expect(actual).toHaveProperty('statusCode', 200)
@@ -200,21 +239,13 @@ describe('Records handler: resetPassword', () => {
 
     it('should handle general error', async () => {
       const body = {
-        email: 'error@test.me',
+        id: -1,
         reset_key: 'asdasd',
-        password: 'test123',
-        confirm_password: 'test123',
+        password: 'te$T!ng123',
+        confirm_password: 'te$T!ng123',
       }
 
-      const headers = {
-        'client-id': 'valid id',
-        'client-secret': 'valid secret',
-      }
-
-      const actual = await resetPassword(mockEvent(
-        body,
-        headers,
-      ) as APIGatewayProxyEvent)
+      const actual = await resetPassword(mockEvent(body) as APIGatewayProxyEvent)
 
       expect(actual).toHaveProperty('statusCode', 500)
     })
@@ -230,7 +261,7 @@ describe('Records handler: resetPassword', () => {
     })
 
     it('should return invalid request if required email was not provided', async () => {
-      const body = { password: 'asdasda' }
+      const body = { password: 'te$T!ng123' }
 
       const actual = await resetPassword(mockEvent(
         body,
@@ -240,7 +271,7 @@ describe('Records handler: resetPassword', () => {
     })
 
     it('should return invalid request if required password was not provided', async () => {
-      const body = { email }
+      const body = { id: 1 }
 
       const actual = await resetPassword(mockEvent(
         body,
@@ -260,9 +291,9 @@ describe('Records handler: forgot password', () => {
     expect(actual).toHaveProperty('body')
 
     const actual_body = JSON.parse(actual.body)
+    expect(actual_body).toHaveProperty('message', 'success.forgot_password_confirmation')
     expect(actual_body).toHaveProperty('data')
 
-    expect(actual_body.data).toHaveProperty('email', email)
     expect(actual_body.data).toHaveProperty('reset_requested_at')
   })
 
@@ -270,8 +301,8 @@ describe('Records handler: forgot password', () => {
     const body = {
       email: 'error@test.me',
       reset_key: 'asdasd',
-      password: 'test123',
-      confirm_password: 'test123',
+      password: 'te$T!ng123',
+      confirm_password: 'te$T!ng123',
     }
 
     const actual = await forgot(mockEvent(
@@ -307,6 +338,48 @@ describe('Records handler: forgot password', () => {
     expect(actual_body.errors).toHaveLength(1)
   })
 })
+
+describe('Records handler: resendVerification', () => {
+  it('should return invalid request on no payload', async () => {
+    const body = {}
+
+    const actual = await resendActivation(mockEvent(body) as APIGatewayProxyEvent)
+    expect(actual).toHaveProperty('statusCode', 400)
+  })
+
+  it('should return invalid request if email was not provided', async () => {
+    const body = { some_other_field: 'john' }
+
+    const actual = await resendActivation(mockEvent(body) as APIGatewayProxyEvent)
+    expect(actual).toHaveProperty('statusCode', 400)
+    expect(actual).toHaveProperty('body')
+
+    const actual_body = JSON.parse(actual.body)
+    expect(actual_body).toHaveProperty('error', 'error-client.bad-request')
+    expect(actual_body).toHaveProperty('errors')
+    expect(actual_body.errors).toHaveLength(1)
+  })
+
+  it('should re-register user', async () => {
+    const body = { email: 'unverified@test.me' }
+
+    const actual = await resendActivation(mockEvent(body) as APIGatewayProxyEvent)
+    expect(actual).toHaveProperty('statusCode', 200)
+    expect(actual).toHaveProperty('body')
+  })
+
+  it('should be able to handle errors', async () => {
+    const body = { email }
+
+    const actual = await resendActivation(mockEvent(body) as APIGatewayProxyEvent)
+
+    expect(actual).toHaveProperty('body')
+
+    const actual_body = JSON.parse(actual.body)
+    expect(actual_body).toHaveProperty('error')
+  })
+})
+
 
 // Mocks at the bottom as we rarely modify them
 jest.mock('aws-sdk/clients/ssm', () => {
