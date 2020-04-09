@@ -21,7 +21,7 @@ provider:
     DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
   runtime: nodejs10.x
   region: ap-southeast-1
-  stackName: ${self:custom.project}-${self:custom.service_name}-${self:custom.stage}
+  stackName: ${self:custom.project}-${self:service.name}-${self:custom.stage}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -35,7 +35,6 @@ provider:
 
 custom:
   project: <project_name_here>
-  service_name: <service_name_here>
   stage: ${opt:stage, self:provider.stage}
 
 functions:
