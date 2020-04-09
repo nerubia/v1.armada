@@ -1,6 +1,6 @@
 {
   "name": "armada-sitrep",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Armory microservices",
   "main": "handler.js",
   "scripts": {
