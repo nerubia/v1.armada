@@ -61,11 +61,12 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
           path: enter-post-path
-  list:
-    handler: handler.list
+
+  update:
+    handler: handler.update
     events:
       - http:
-          method: get
+          method: any
           cors:
             origin: "*" # <-- Specify allowed origin
             headers: # <-- Specify allowed headers
@@ -76,4 +77,8 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
-          path: enter-get-path
+          path: enter-get-path/{identifier}
+          request:
+            parameters:
+              paths:
+                identifier: true
