@@ -3,6 +3,10 @@ import Router = require('koa-router')
 import { KastleRouter, KastleRoute, MethodTypes } from '@g-six/kastle-router'
 import { Route as Sitrep } from './sitrep'
 import { Route as Auth } from './auth'
+import { Route as CopyTrades } from './copy-trades'
+import { Route as TopTraders } from './top-traders'
+import { Route as Traders } from './traders'
+import { Route as Users } from './users'
 
 export const loadRouteItem = (router: Router) => {
   return (route_item: KastleRoute) => {
@@ -40,6 +44,10 @@ export const loadRoutes = (app: Koa) => {
 }
 
 export const loadServices = (app: Koa) => {
-  loadRoutes(app)(Sitrep)
   loadRoutes(app)(Auth)
+  loadRoutes(app)(CopyTrades)
+  loadRoutes(app)(Sitrep)
+  loadRoutes(app)(TopTraders)
+  loadRoutes(app)(Traders)
+  loadRoutes(app)(Users)
 }

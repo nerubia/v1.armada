@@ -9,6 +9,7 @@ import {
   create,
   forgot,
   login,
+  resendActivation,
   resetPassword,
 } from 'services/auth/handler'
 
@@ -39,6 +40,11 @@ const routes: KastleRoutes = {
     method: MethodTypes.Post,
     route: '/forgot-password',
     middlewares: [lambdaMiddleware(forgot)],
+  },
+  resend_activation: {
+    method: MethodTypes.Post,
+    route: '/resend-activation',
+    middlewares: [lambdaMiddleware(resendActivation)],
   },
 }
 

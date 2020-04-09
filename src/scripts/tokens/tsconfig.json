@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "lib",
+    "target": "es6",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedParameters": true,
+    "preserveConstEnums": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "suppressImplicitAnyIndexErrors": true
+  },
+
+  "exclude": ["node_modules", "__tests__", "*.test.ts", ".build", ".serverless"],
+  "types": ["typePatches"]
+}

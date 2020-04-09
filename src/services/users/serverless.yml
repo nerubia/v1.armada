@@ -1,0 +1,89 @@
+service:
+  name: users
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  environment:
+    APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
+    CLIENT_ID: ${ssm:client_id_${self:custom.stage}}
+    CLIENT_SECRET: ${ssm:client_secret_${self:custom.stage}}
+    NODE_ENV: ${self:custom.stage}
+    NOTIFICATIONS_URI: ${ssm:notifications_uri}
+    DATABASE_NAME: ${ssm:dbname_${self:custom.stage}}
+    DATABASE_PASSWORD: ${ssm:dbpass_${self:custom.stage}}
+    DATABASE_PORT: ${ssm:dbport_${self:custom.stage}}
+    DATABASE_HOST: ${ssm:dbhost_${self:custom.stage}}
+    DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
+    MANDRILL_API_KEY: ${ssm:mandrill_api_key}
+  runtime: nodejs10.x
+  region: ap-southeast-1
+  stackName: ${self:custom.project}-${self:custom.service_name}-${self:custom.stage}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "ssm:GetParameters"
+      Resource: "arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*"
+  apiGateway:
+    restApiId:
+      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-id
+    restApiRootResourceId:
+      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-root-id
+
+custom:
+  project: katmoni
+  service_name: users
+  stage: ${opt:stage, self:provider.stage}
+
+functions:
+  retrieve_profile:
+    handler: handler.retrieveProfile
+    events:
+      - http:
+          method: get
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          path: users/me
+  update_login:
+    handler: handler.updateLogin
+    events:
+      - http:
+          method: put
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          path: users/me/auth
+  update_profile:
+    handler: handler.updateProfile
+    events:
+      - http:
+          method: put
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - kasl-key
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          path: users/me

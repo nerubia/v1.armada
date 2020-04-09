@@ -12,7 +12,7 @@ describe('loadServices', () => {
 
   it('should load routes routes() and allowedMethods() for each services', () => {
     loadServices(mockApp)
-    expect(spyUse).toHaveBeenCalledTimes(4)
+    expect(spyUse).toHaveBeenCalledTimes(12)
   })
 })
 
