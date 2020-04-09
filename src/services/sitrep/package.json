@@ -15,6 +15,7 @@
     "@g-six/swiss-knife": "^0.1.15",
     "@hapi/joi": "^17.1.1",
     "aws-sdk": "^2.656.0",
+    "axios": "^0.19.2",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "massive": "^6.2.0",

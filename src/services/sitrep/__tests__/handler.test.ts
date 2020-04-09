@@ -5,8 +5,9 @@ process.env.APP_SECRET = 'testing'
 describe('Records handler: sitrep', () => {
   it('should return results', async () => {
     const { body } = await sitrep()
-    const { version } = JSON.parse(body)
+    const { version, ip } = JSON.parse(body)
     expect(version).toEqual('0.0.4')
+    expect(ip).toEqual('3.0.68.86')
   })
 })
 
