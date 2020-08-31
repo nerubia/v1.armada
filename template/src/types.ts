@@ -1,3 +1,5 @@
+import { PaginationFilter } from '../../src/utils/ts/interfaces'
+
 export interface Response {
   body: string
   headers: {
@@ -10,10 +12,10 @@ export interface Params {
   contents?: string
 }
 
-export interface Filters extends Params {
+export interface Filters extends PaginationFilter {
+  title?: string
+  contents?: string
   parent_id?: number
-  limit?: number
-  order?: number
   slug?: string
 }
 
@@ -28,6 +30,13 @@ export interface Blog {
   title: string
   contents: string
   parent_id?: number
-  order?: number
   slug?: string
+}
+
+export interface BlogRecord extends Blog {
+  id: number
+  created_at: Date
+  created_by: number
+  updated_at: Date
+  updated_by: number
 }

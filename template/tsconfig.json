@@ -13,11 +13,17 @@
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "preserveConstEnums": true,
-    "resolveJsonModule": true,
     "strictNullChecks": true,
     "sourceMap": true,
-    "suppressImplicitAnyIndexErrors": true
+    "suppressImplicitAnyIndexErrors": true,
+    "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "__tests__", "*.test.ts", ".build", ".serverless"],
+  "exclude": [
+    "node_modules",
+    "__tests__",
+    "*.test.ts",
+    ".build",
+    ".serverless"
+  ],
   "types": ["typePatches"]
 }
