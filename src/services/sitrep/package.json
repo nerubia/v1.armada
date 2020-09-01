@@ -17,7 +17,7 @@
     "aws-sdk": "^2.656.0",
     "axios": "^0.19.2",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "massive": "^6.2.0",
     "redis": "^3.0.2",
     "source-map-support": "^0.5.16"
