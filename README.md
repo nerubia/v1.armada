@@ -18,7 +18,7 @@ Serverless API based off serverless.com.
 Install node packages
 
 ```
-npm install
+yarn
 ```
 
 (Optional but recommended) run unit tests
