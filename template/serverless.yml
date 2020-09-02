@@ -3,7 +3,8 @@ service:
 
 plugins:
   - serverless-offline
-  - serverless-plugin-typescript
+  - serverless-plugin-monorepo
+  - serverless-webpack
   - serverless-pseudo-parameters
 
 provider:
@@ -19,23 +20,38 @@ provider:
     DATABASE_PORT: ${ssm:dbport_${self:custom.stage}}
     DATABASE_HOST: ${ssm:dbhost_${self:custom.stage}}
     DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
-  runtime: nodejs10.x
+  runtime: nodejs12.x
   region: ap-southeast-1
-  stackName: ${self:custom.project}-${self:service.name}-${self:custom.stage}
+  stackName: ${self:custom.project}-${self:custom.service_name}-${self:custom.stage}
   iamRoleStatements:
-    - Effect: "Allow"
+    - Effect: 'Allow'
       Action:
-        - "ssm:GetParameters"
-      Resource: "arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*"
+        - 'ssm:GetParameters'
+        - 'ssm:GetParameter'
+      Resource: 'arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*'
   apiGateway:
     restApiId:
-      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-id
+      'Fn::ImportValue': ProofnAPIGateway-restApiId-${self:custom.stage}
     restApiRootResourceId:
-      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-root-id
+      'Fn::ImportValue': ProofnAPIGateway-rootResourceId-${self:custom.stage}
+    websocketApiId:
+      'Fn::ImportValue': ProofnAPIGateway-websocketApiId-${self:custom.stage}
 
 custom:
   project: <project_name_here>
+  service_name: <service_name_here>
   stage: ${opt:stage, self:provider.stage}
+  webpack:
+    keepOutputDirectory: true
+    packager: 'yarn'
+    includeModules:
+      webpackConfig: 'webpack.config.js'
+      forceExclude:
+        - aws-sdk
+    excludeFiles: src/**/*.test.ts
+
+package:
+  individually: true
 
 functions:
   index:
@@ -51,7 +67,7 @@ functions:
       - http:
           method: post
           cors:
-            origin: "*" # <-- Specify allowed origin
+            origin: '*' # <-- Specify allowed origin
             headers: # <-- Specify allowed headers
               - Content-Type
               - X-Amz-Date
@@ -68,7 +84,7 @@ functions:
       - http:
           method: any
           cors:
-            origin: "*" # <-- Specify allowed origin
+            origin: '*' # <-- Specify allowed origin
             headers: # <-- Specify allowed headers
               - Content-Type
               - X-Amz-Date

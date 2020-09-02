@@ -1,0 +1,44 @@
+service: armada-api
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ap-southeast-1
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+
+resources:
+  Resources:
+    ArmadaApiGW:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: ArmadaApiGW-${self:custom.stage}
+
+    ArmadaWebsocketApi:
+      Type: AWS::ApiGatewayV2::Api
+      Properties:
+        Name: ArmadaWebsocketApi-${self:custom.stage}
+        ProtocolType: WEBSOCKET
+        RouteSelectionExpression: '$request.body.action'
+
+  Outputs:
+    apiGatewayRestApiId:
+      Value:
+        Ref: ArmadaApiGW
+      Export:
+        Name: ArmadaAPIGateway-restApiId-${self:custom.stage}
+
+    apiGatewayRestApiRootResourceId:
+      Value:
+        Fn::GetAtt:
+          - ArmadaApiGW
+          - RootResourceId
+      Export:
+        Name: ArmadaAPIGateway-rootResourceId-${self:custom.stage}
+
+    websocketApiId:
+      Value:
+        Ref: ArmadaWebsocketApi
+      Export:
+        Name: ArmadaAPIGateway-websocketApiId-${self:custom.stage}
