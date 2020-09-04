@@ -13,12 +13,11 @@
   "dependencies": {
     "@g-six/kastle-router": "^0.1.6",
     "@g-six/swiss-knife": "^0.1.15",
-    "@hapi/joi": "^17.1.1",
-    "@hapi/joi-date": "^2.0.1",
     "aws-sdk": "^2.656.0",
     "axios": "^0.19.2",
     "class-validator": "^0.12.2",
     "date-fns": "^2.14.0",
+    "joi": "^17.2.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "mandrill-api": "^1.0.45",

@@ -10,7 +10,7 @@ import {
   Results,
   User,
 } from './types'
-import { Schema } from '@hapi/joi'
+import { Schema } from 'joi'
 
 export const verifyClient = async (
   client_id: string,

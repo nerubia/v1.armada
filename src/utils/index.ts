@@ -6,7 +6,7 @@ import {
   KastleResponseHeaders as headers,
   HttpStatus,
 } from '@g-six/kastle-router'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import { SES, AWSError } from 'aws-sdk'
 
 import { ErrorMessages } from './ts/enums'
@@ -105,6 +105,50 @@ export const filterLikeQueries = <T>(
     })
 
   return filter as T
+}
+
+export const generateSafeQuery = (
+  queryStringParameters: {
+    [key: string]: string | string[]
+  } | null,
+  multiValueQueryStringParameters: {
+    [key: string]: string[]
+  } | null,
+) => {
+  const flatQuery = {} as { [key: string]: string }
+  const multiQuery = {} as { [key: string]: string[] }
+
+  // extract the last value of arrayed query and relocate arrayed queries
+  if (queryStringParameters) {
+    const keys = Object.keys(queryStringParameters)
+
+    keys.forEach((key) => {
+      const value = queryStringParameters[key]
+      if (Array.isArray(value)) {
+        flatQuery[key] = value[value.length - 1]
+        multiQuery[key] = value
+      } else {
+        flatQuery[key] = value
+        multiQuery[key] = [value]
+      }
+    })
+  }
+
+  // If API Gateway Proxy
+  if (multiValueQueryStringParameters) {
+    console.log('API in API Gateway')
+    return {
+      queryStringParameters: queryStringParameters as { [key: string]: string },
+      multiValueQueryStringParameters: multiValueQueryStringParameters,
+    }
+  } else {
+    // If KOA
+    console.log('API in KOA')
+    return {
+      queryStringParameters: flatQuery,
+      multiValueQueryStringParameters: multiQuery,
+    }
+  }
 }
 
 export function paginationFilters(options: PaginationFilter) {

@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import { Genders, ErrorMessages } from './types'
 import { isGoodPassword } from '@g-six/swiss-knife-lite'
 

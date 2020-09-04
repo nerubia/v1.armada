@@ -18,7 +18,7 @@ export const readLocales = async (): Promise<void> => {
     if (files[i].split('.yaml').length === 2) {
       languages[basename(files[i], '.yaml')] = safeLoad(
         readFileSync(`${dir}/${files[i]}`, 'utf8'),
-      )
+      ) as Languages
     }
   }
 }

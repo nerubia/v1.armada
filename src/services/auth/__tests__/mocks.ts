@@ -12,18 +12,6 @@ export const spyFindToken = jest.fn(({ client_id, client_secret }) => {
   return client_id === 'valid id' && client_secret === 'valid secret'
 })
 
-export const spyFindUsers = jest.fn((creds) => {
-  const creds_type = typeof creds
-
-  if (creds_type === 'object') {
-    return findUsersByCriteria(creds)
-  } else if (creds_type === 'number') {
-    return findUsersById(creds)
-  } else {
-    throw 'Invalid parameters passed to findDoc'
-  }
-})
-
 const findUsersByCriteria = (creds: User) => {
   if (creds.email === 'error@test.me') throw Error('Test error')
 
@@ -93,6 +81,18 @@ const findUsersById = (id: number) => {
 
   return null
 }
+
+export const spyFindUsers = jest.fn((creds) => {
+  const creds_type = typeof creds
+
+  if (creds_type === 'object') {
+    return findUsersByCriteria(creds)
+  } else if (creds_type === 'number') {
+    return findUsersById(creds)
+  } else {
+    throw 'Invalid parameters passed to findDoc'
+  }
+})
 
 export const spyUpdateDoc = jest.fn((id, rec) => {
   return id === 1
