@@ -18,6 +18,7 @@ import {
   successResponse,
   validateInput,
   validateToken,
+  generateSafeQuery,
 } from '../index'
 
 import { ErrorMessages } from '../ts/enums'
@@ -414,6 +415,53 @@ describe('Utility functions for Proofn authentication', () => {
       }
 
       expect(error).toEqual(ErrorMessages.UNAUTHORIZED_ACCESS)
+    })
+  })
+})
+
+describe('generateSafeQuery', () => {
+  it('should convert Koa parsed query params to API GW parsing method', () => {
+    const queryParams = {
+      "field_1": "a",
+      "field_2": ["1", "2", "3"],
+    }
+
+    const multivalueQueryParams = null
+
+    const { queryStringParameters, multiValueQueryStringParameters } = generateSafeQuery(queryParams, multivalueQueryParams)
+
+    expect(queryStringParameters).toMatchObject({
+      "field_1": "a",
+      "field_2": "3",
+    })
+
+    expect(multiValueQueryStringParameters).toMatchObject({
+      "field_1": ["a"],
+      "field_2": ["1", "2", "3"],
+    })
+  })
+
+  it('should return the query params as is if parsed by API GW', () => {
+    const queryParams = {
+      "field_1": "a",
+      "field_2": "3",
+    }
+
+    const multivalueQueryParams = {
+      "field_1": ["a"],
+      "field_2": ["1", "2", "3"],
+    }
+
+    const { queryStringParameters, multiValueQueryStringParameters } = generateSafeQuery(queryParams, multivalueQueryParams)
+
+    expect(queryStringParameters).toMatchObject({
+      "field_1": "a",
+      "field_2": "3",
+    })
+
+    expect(multiValueQueryStringParameters).toMatchObject({
+      "field_1": ["a"],
+      "field_2": ["1", "2", "3"],
     })
   })
 })
