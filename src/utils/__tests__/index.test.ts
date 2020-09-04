@@ -2,7 +2,7 @@ import { findDocSpy } from '../__mocks__/database'
 import { mockEvent } from '../__mocks__'
 
 import Jwt from 'jsonwebtoken'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import { Database as database } from '@g-six/swiss-knife'
 
 import {

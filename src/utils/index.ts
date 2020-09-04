@@ -6,7 +6,7 @@ import {
   KastleResponseHeaders as headers,
   HttpStatus,
 } from '@g-six/kastle-router'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import { SES, AWSError } from 'aws-sdk'
 
 import { ErrorMessages } from './ts/enums'

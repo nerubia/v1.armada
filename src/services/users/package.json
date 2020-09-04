@@ -14,9 +14,9 @@
     "@g-six/kastle-router": "^0.1.6",
     "@g-six/swiss-knife": "^0.1.15",
     "@g-six/swiss-knife-lite": "^1.0.4",
-    "@hapi/joi": "^17.1.1",
     "aws-sdk": "^2.656.0",
     "axios": "^0.19.2",
+    "joi": "^17.2.1",
     "mandrill-api": "^1.0.45",
     "massive": "^6.2.0",
     "redis": "^3.0.2",
@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.48",
-    "@types/hapi__joi": "^16.0.12",
     "@types/lodash": "^4.14.149",
     "@types/mandrill-api": "^1.0.30",
     "@types/massive": "^5.4.3",
