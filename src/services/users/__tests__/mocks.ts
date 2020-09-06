@@ -15,16 +15,6 @@ export const mock_user = {
 
 export const spyDisconnectDb = jest.fn()
 
-export const spyFindUsers = jest.fn((creds) => {
-  const creds_type = typeof creds
-
-  if (creds_type === 'object') {
-    return findUsersByCriteria(creds)
-  }
-
-  throw 'Invalid parameters passed to findDoc'
-})
-
 const findUsersByCriteria = (user: User) => {
   if (user.kasl_key === 'xxx') throw Error('Test error')
 
@@ -34,6 +24,16 @@ const findUsersByCriteria = (user: User) => {
 
   return []
 }
+
+export const spyFindUsers = jest.fn((creds) => {
+  const creds_type = typeof creds
+
+  if (creds_type === 'object') {
+    return findUsersByCriteria(creds)
+  }
+
+  throw 'Invalid parameters passed to findDoc'
+})
 
 export const spyUpdateDoc = jest.fn((id, rec) => {
   return id === 1

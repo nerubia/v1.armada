@@ -8,7 +8,7 @@ import {
   UpdateProfileParams,
   UserCriteria,
 } from './types'
-import { Schema } from '@hapi/joi'
+import { Schema } from 'joi'
 
 export const validateInput = async (input: InputParams, schema: Schema) => {
   const result = schema.validate(input, { abortEarly: false })
