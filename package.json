@@ -100,7 +100,7 @@
     "@types/mime-types": "^2.1.0",
     "@types/uuid": "^8.3.0",
     "aws-sdk": "^2.803.0",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "joi": "^17.3.0",
     "js-yaml": "^3.14.0",
     "jsonwebtoken": "^8.5.1",
