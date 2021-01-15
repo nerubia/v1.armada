@@ -14,7 +14,7 @@
     "@g-six/kastle-router": "^0.1.7",
     "@g-six/swiss-knife": "^0.1.15",
     "aws-sdk": "^2.803.0",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "joi": "^17.3.0",
     "js-yaml": "^3.14.0",
     "lodash": "^4.17.20",
