@@ -15,7 +15,7 @@
     "@g-six/swiss-knife": "^0.1.15",
     "@g-six/swiss-knife-lite": "^1.0.4",
     "aws-sdk": "^2.656.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "joi": "^17.2.1",
     "lodash": "^4.17.20",
     "mandrill-api": "^1.0.45",

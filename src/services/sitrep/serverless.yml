@@ -1,5 +1,4 @@
-service:
-  name: sitrep
+service: sitrep
 
 plugins:
   - serverless-offline
@@ -16,7 +15,10 @@ provider:
     DATABASE_PORT: ${ssm:dbport_${self:custom.stage}}
     DATABASE_HOST: ${ssm:dbhost_${self:custom.stage}}
     DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
-  runtime: nodejs10.x
+  apiName: ${self:custom.project}-${opt:stage, self:provider.stage, 'dev'}
+  apiGateway:
+    shouldStartNameWithService: true
+  runtime: nodejs12.x
   region: ap-southeast-1
   stackName: ${self:custom.project}-${self:service.name}-${self:custom.stage}
   iamRoleStatements:
@@ -27,7 +29,7 @@ provider:
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-  project: konbini
+  project: kaishahero
 
 functions:
   sitrep:
@@ -49,7 +51,7 @@ resources:
       Value:
         Ref: ApiGatewayRestApi
       Export:
-        Name: ${self:custom.project}-${self:custom.stage}-api-id
+        Name: ${self:custom.project}-${self:service.name}-${self:custom.stage}-api
 
     ApiGatewayRestApiRootResourceId:
       Value:
@@ -57,4 +59,4 @@ resources:
           - ApiGatewayRestApi
           - RootResourceId
       Export:
-        Name: ${self:custom.project}-${self:custom.stage}-api-root-id
+        Name: ${self:custom.project}-${self:service.name}-${self:custom.stage}-root-api
