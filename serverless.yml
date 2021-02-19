@@ -1,4 +1,4 @@
-service: armada-api
+service: <project_name_here>-api
 
 provider:
   name: aws
@@ -7,38 +7,39 @@ provider:
 
 custom:
   stage: ${opt:stage, self:provider.stage}
+  project: <project_name_here>
 
 resources:
   Resources:
-    ArmadaApiGW:
+    ApiGateway:
       Type: AWS::ApiGateway::RestApi
       Properties:
-        Name: ArmadaApiGW-${self:custom.stage}
+        Name: ApiGateway-${self:custom.stage}
 
-    ArmadaWebsocketApi:
+    WebsocketApi:
       Type: AWS::ApiGatewayV2::Api
       Properties:
-        Name: ArmadaWebsocketApi-${self:custom.stage}
+        Name: WebsocketApi-${self:custom.stage}
         ProtocolType: WEBSOCKET
         RouteSelectionExpression: '$request.body.action'
 
   Outputs:
-    apiGatewayRestApiId:
+    ApiGatewayRestApiId:
       Value:
-        Ref: ArmadaApiGW
+        Ref: ApiGateway
       Export:
-        Name: ArmadaAPIGateway-restApiId-${self:custom.stage}
+        Name: ${self:custom.project}-${self:custom.stage}-api-id
 
-    apiGatewayRestApiRootResourceId:
+    ApiGatewayRestApiRootResourceId:
       Value:
         Fn::GetAtt:
-          - ArmadaApiGW
+          - ApiGateway
           - RootResourceId
       Export:
-        Name: ArmadaAPIGateway-rootResourceId-${self:custom.stage}
+        Name: ${self:custom.project}-${self:custom.stage}-api-root-id
 
-    websocketApiId:
+    WebsocketApiId:
       Value:
-        Ref: ArmadaWebsocketApi
+        Ref: WebsocketApi
       Export:
-        Name: ArmadaAPIGateway-websocketApiId-${self:custom.stage}
+        Name: ${self:custom.project}-${self:custom.stage}-websocketapi-id

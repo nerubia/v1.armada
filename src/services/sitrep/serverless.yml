@@ -1,12 +1,13 @@
 service: sitrep
 
 plugins:
-  - serverless-offline
   - serverless-plugin-typescript
   - serverless-pseudo-parameters
 
 provider:
   name: aws
+  runtime: nodejs12.x
+  region: ap-southeast-1
   environment:
     APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
     NODE_ENV: ${self:custom.stage}
@@ -17,9 +18,10 @@ provider:
     DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
   apiName: ${self:custom.project}-${opt:stage, self:provider.stage, 'dev'}
   apiGateway:
-    shouldStartNameWithService: true
-  runtime: nodejs12.x
-  region: ap-southeast-1
+    restApiId:
+      'Fn::ImportValue': ${self:custom.project}-${self:custom.stage}-api-id
+    restApiRootResourceId:
+      'Fn::ImportValue': ${self:custom.project}-${self:custom.stage}-api-root-id
   stackName: ${self:custom.project}-${self:service.name}-${self:custom.stage}
   iamRoleStatements:
     - Effect: "Allow"
@@ -29,7 +31,7 @@ provider:
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-  project: kaishahero
+  project: <project_name_here>
 
 functions:
   sitrep:
@@ -39,24 +41,3 @@ functions:
           method: get
           cors: true
           path: sitrep
-#    vpc:
-#      securityGroupIds:
-#        - sg-8aaa19ed
-#      subnetIds:
-#        - subnet-0f5c51f91d972206e
-
-resources:
-  Outputs:
-    ApiGatewayRestApiId:
-      Value:
-        Ref: ApiGatewayRestApi
-      Export:
-        Name: ${self:custom.project}-${self:service.name}-${self:custom.stage}-api
-
-    ApiGatewayRestApiRootResourceId:
-      Value:
-        Fn::GetAtt:
-          - ApiGatewayRestApi
-          - RootResourceId
-      Export:
-        Name: ${self:custom.project}-${self:service.name}-${self:custom.stage}-root-api

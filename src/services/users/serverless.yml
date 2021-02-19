@@ -1,5 +1,4 @@
-service:
-  name: users
+service: users
 
 plugins:
   - serverless-plugin-typescript
@@ -7,6 +6,8 @@ plugins:
 
 provider:
   name: aws
+  runtime: nodejs12.x
+  region: ap-southeast-1
   environment:
     APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
     CLIENT_ID: ${ssm:client_id_${self:custom.stage}}
@@ -18,25 +19,22 @@ provider:
     DATABASE_PORT: ${ssm:dbport_${self:custom.stage}}
     DATABASE_HOST: ${ssm:dbhost_${self:custom.stage}}
     DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
-    MANDRILL_API_KEY: ${ssm:mandrill_api_key}
-  runtime: nodejs10.x
-  region: ap-southeast-1
-  stackName: ${self:custom.project}-${self:custom.service_name}-${self:custom.stage}
+  apiName: ${self:custom.project}-${opt:stage, self:provider.stage, 'dev'}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': ${self:custom.project}-${self:custom.stage}-api-id
+    restApiRootResourceId:
+      'Fn::ImportValue': ${self:custom.project}-${self:custom.stage}-api-root-id
+  stackName: ${self:custom.project}-${self:service.name}-${self:custom.stage}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
         - "ssm:GetParameters"
       Resource: "arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*"
-  apiGateway:
-    restApiId:
-      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-id
-    restApiRootResourceId:
-      "Fn::ImportValue": ${self:custom.project}-${self:custom.stage}-api-root-id
 
 custom:
-  project: katmoni
-  service_name: users
   stage: ${opt:stage, self:provider.stage}
+  project: <project_name_here>
 
 functions:
   retrieve_profile:
