@@ -1,6 +1,9 @@
 service: <service_name_here>
 
 plugins:
+  - serverless-offline
+  - serverless-plugin-monorepo
+  - serverless-webpack
   - serverless-plugin-typescript
   - serverless-pseudo-parameters
 
@@ -33,8 +36,19 @@ provider:
       Resource: 'arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*'
 
 custom:
-  stage: ${opt:stage, self:provider.stage}
   project: <project_name_here>
+  stage: ${opt:stage, self:provider.stage}
+  webpack:
+    keepOutputDirectory: true
+    packager: 'yarn'
+    includeModules:
+      webpackConfig: 'webpack.config.js'
+      forceExclude:
+        - aws-sdk
+    excludeFiles: src/**/*.test.ts
+
+package:
+  individually: true
 
 functions:
   index:
