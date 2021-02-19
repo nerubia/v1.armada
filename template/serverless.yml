@@ -1,14 +1,16 @@
-service:
-  name: <service_name_here>
+service: <service_name_here>
 
 plugins:
   - serverless-offline
   - serverless-plugin-monorepo
   - serverless-webpack
+  - serverless-plugin-typescript
   - serverless-pseudo-parameters
 
 provider:
   name: aws
+  runtime: nodejs12.x
+  region: ap-southeast-1
   environment:
     APP_SECRET: ${ssm:APP_SECRET_${self:custom.stage}}
     CLIENT_ID: ${ssm:client_id_${self:custom.stage}}
@@ -20,26 +22,21 @@ provider:
     DATABASE_PORT: ${ssm:dbport_${self:custom.stage}}
     DATABASE_HOST: ${ssm:dbhost_${self:custom.stage}}
     DATABASE_USER: ${ssm:dbuser_${self:custom.stage}}
-  runtime: nodejs12.x
-  region: ap-southeast-1
-  stackName: ${self:custom.project}-${self:custom.service_name}-${self:custom.stage}
+  apiName: ${self:custom.project}-${opt:stage, self:provider.stage, 'dev'}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': ${self:custom.project}-${self:custom.stage}-api-id
+    restApiRootResourceId:
+      'Fn::ImportValue': ${self:custom.project}-${self:custom.stage}-api-root-id
+  stackName: ${self:custom.project}-${self:service.name}-${self:custom.stage}
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
         - 'ssm:GetParameters'
-        - 'ssm:GetParameter'
       Resource: 'arn:aws:ssm:ap-southeast-1:#{AWS::AccountId}:parameter/*'
-  apiGateway:
-    restApiId:
-      'Fn::ImportValue': ProofnAPIGateway-restApiId-${self:custom.stage}
-    restApiRootResourceId:
-      'Fn::ImportValue': ProofnAPIGateway-rootResourceId-${self:custom.stage}
-    websocketApiId:
-      'Fn::ImportValue': ProofnAPIGateway-websocketApiId-${self:custom.stage}
 
 custom:
   project: <project_name_here>
-  service_name: <service_name_here>
   stage: ${opt:stage, self:provider.stage}
   webpack:
     keepOutputDirectory: true
@@ -67,8 +64,8 @@ functions:
       - http:
           method: post
           cors:
-            origin: '*' # <-- Specify allowed origin
-            headers: # <-- Specify allowed headers
+            origin: '*'
+            headers:
               - Content-Type
               - X-Amz-Date
               - Authorization
@@ -77,15 +74,14 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
           path: enter-post-path
-
   update:
     handler: handler.update
     events:
       - http:
           method: any
           cors:
-            origin: '*' # <-- Specify allowed origin
-            headers: # <-- Specify allowed headers
+            origin: '*'
+            headers:
               - Content-Type
               - X-Amz-Date
               - Authorization
