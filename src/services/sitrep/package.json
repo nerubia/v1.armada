@@ -29,7 +29,7 @@
     "@types/node": "^14.14.10",
     "@types/redis": "^2.8.28",
     "debug": "^4.3.1",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "serverless": "^2.14.0",
     "serverless-offline": "^6.8.0",
     "serverless-plugin-typescript": "^1.1.9",
