@@ -112,7 +112,7 @@
     "mime-types": "^2.1.27",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.32",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "npm-check-updates": "^10.2.2",
     "yargs-parser": "^20.2.4"
   },
